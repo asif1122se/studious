@@ -135,7 +135,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ title, navigationItems, childr
 
     if (isMobile) {
         return (
-            <div className="md:hidden fixed bottom-0 left-0 right-0 mx-5 mb-5 rounded-md bg-background dark:bg-background-subtle border border-border dark:border-border-dark z-50">
+            <div className="md:hidden fixed bottom-0 left-0 right-0 mx-5 mb-5 bg-background border border-border z-30 rounded-md">
                 <div className="flex justify-around items-center h-16">
                     {navigationItems.slice(0, 5).map((item, index) => {
                         if (item.type === 'select') {

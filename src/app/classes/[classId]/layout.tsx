@@ -42,7 +42,7 @@ export default function ClassWrappper({ children, params }: {
     return (
         <div className="flex flex-row h-full">
             <Sidebar teacher={appState.user.teacher} classId={classId} />
-            <div className="h-full pt-7 overflow-y-scroll flex-grow pe-7 ps-1 bg-background-subtle">
+            <div className="h-full pt-7 overflow-y-scroll flex-grow pe-7 ps-7 bg-background-subtle">
                 <div className="mx-0 md:mx-4 lg:mx-8">
                     {children}
                 </div>      

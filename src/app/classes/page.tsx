@@ -124,7 +124,7 @@ export default function Classes() {
     );
 
     return (
-        <div className="flex flex-col space-y-4 w-full h-full px-40 pt-5">
+        <div className="flex flex-col space-y-4 w-full h-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-40 pt-5">
             <div className="flex flex-row items-center justify-between w-full">
                 <h1 className="text-xl font-semibold">Classes</h1>
                 <div className="flex space-x-2">

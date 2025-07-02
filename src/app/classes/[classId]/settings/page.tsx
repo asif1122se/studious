@@ -15,7 +15,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { HiUpload, HiTrash, HiColorSwatch } from "react-icons/hi";
 
-export default function Assignments({ params }: { params: { classId: string } }) {
+export default function Settings({ params }: { params: { classId: string } }) {
     const classId = params.classId;
     const appState = useSelector((state: RootState) => state.app);
     const dispatch = useDispatch();
@@ -80,7 +80,7 @@ export default function Assignments({ params }: { params: { classId: string } })
     }
 
     return (
-        <div className="flex flex-col space-y-6 w-[40rem]">
+        <div className="flex flex-col space-y-6 w-full">
             <Card>
                 <div className="flex flex-col space-y-4">
                     <h2 className="text-lg font-semibold">Basic Information</h2>

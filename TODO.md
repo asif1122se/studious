@@ -1,4 +1,3 @@
-todo: 
-  - markscheme + boundaries
-  - text based comments
-  - fix multi day events in upcoming + emoji ~ likely the result of timezone errors
+- UX : seeing events changing after being changed (refetch)
+- make agenda responsive + add a mobile version
+- consider fixing email verification

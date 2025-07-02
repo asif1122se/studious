@@ -6,7 +6,7 @@ import { AlertLevel } from "@/lib/alertLevel";
 import { addAlert, setRefetch } from "@/store/appSlice";
 import { RootState } from "@/store/store";
 import { useEffect, useState } from "react";
-import { HiSpeakerphone, HiAcademicCap, HiUserGroup, HiCalendar, HiPencil, HiTrash } from "react-icons/hi";
+import { HiSpeakerphone, HiAcademicCap, HiUserGroup, HiCalendar, HiPencil, HiTrash, HiArrowLeft } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import Textbox from "@/components/ui/Textbox";
 import Button from "@/components/ui/Button";
@@ -17,6 +17,8 @@ import { emitNewAnnouncement, initializeSocket, joinClass, leaveClass } from "@/
 import Card from "@/components/ui/Card";
 import { getContrastingTextColor } from "@/utils/color";
 import IconFrame from "@/components/ui/IconFrame";
+import Link from "next/link";
+import Announcement from "@/components/class/Announcement";
 
 type ClassData = RouterOutputs['class']['get']['class'];
 type Announcement = ClassData['announcements'][number];
@@ -151,160 +153,159 @@ export default function ClassHome({ params }: { params: { classId: string } }) {
     const textColor = getContrastingTextColor(classColor);
 
     return (
-        <div className="flex flex-col space-y-6 max-w-7xl mx-auto">
+        <div className="min-h-screen">
+            {/* Banner */}
+            <div 
+                className="relative overflow-hidden rounded-md mb-5"
+                style={{ backgroundColor: classColor }}
+            >
+                <div className="absolute inset-0 bg-black/10"></div>
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    <div className="flex items-center space-x-4 mb-6">
+                        <Link 
+                            href="/classes"
+                            className="inline-flex items-center space-x-2 text-white/80 hover:text-white transition-colors"
+                        >
+                            <HiArrowLeft className="h-5 w-5" />
+                            <span>Back to Classes</span>
+                        </Link>
+                    </div>
+                    <div className="flex items-center space-x-6">
 
-            {/* Main Content */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left Sidebar */}
-                <div className="lg:col-span-2 space-y-6">
-                    {/* Announcement Editor */}
-                    {appState.user.teacher && (
-                        <Card className="p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center space-x-3">
-                                    <IconFrame>
-                                        <HiSpeakerphone className="h-5 w-5" />
-                                    </IconFrame>
-                                    <div>
-                                        <h2 className="text-lg font-semibold">
-                                            {editingAnnouncement ? 'Edit Announcement' : 'Create Announcement'}
-                                        </h2>
-                                        <p className="text-sm text-foreground-muted">
-                                            {editingAnnouncement ? 'Update your announcement' : 'Share important updates with your class'}
-                                        </p>
-                                    </div>
+                        <div>
+                            <h1 className="text-4xl font-bold mb-2" style={{ color: textColor }}>
+                                {classProps.subject}
+                            </h1>
+                            <p className="text-xl opacity-90" style={{ color: textColor }}>
+                                Section {classProps.section}
+                            </p>
+                            <div className="flex items-center space-x-4 mt-3">
+                                <div className="flex items-center space-x-2">
+                                    <HiUserGroup className="h-5 w-5 opacity-80" style={{ color: textColor }} />
+                                    <span className="opacity-80" style={{ color: textColor }}>
+                                        {classProps.students?.length || 0} Students
+                                    </span>
                                 </div>
-                                {editingAnnouncement && (
-                                    <Button.SM
-                                        onClick={resetEditor}
-                                        className="text-foreground-muted hover:text-foreground"
-                                    >
-                                        Cancel
-                                    </Button.SM>
-                                )}
+                                <div className="flex items-center space-x-2">
+                                    <HiSpeakerphone className="h-5 w-5 opacity-80" style={{ color: textColor }} />
+                                    <span className="opacity-80" style={{ color: textColor }}>
+                                        {classProps.announcements.length} Announcements
+                                    </span>
+                                </div>
                             </div>
-                            <div className="space-y-4">
-                                <Input.Text
-                                    value={announcementTitle}
-                                    placeholder="Announcement Title"
-                                    onChange={(e) => setAnnouncementTitle(e.target.value)}
-                                    className="w-full"
-                                />
-                                {announcementTitle.length > 0 && (
-                                    <div className="space-y-4">
-                                        <Textbox
-                                            content={announcementContent}
-                                            onChange={(content) => setAnnouncementContent(content)}
-                                        />
-                                        <Button.Primary 
-                                            onClick={handleSubmitAnnouncement}
-                                            className="w-full"
-                                        >
-                                            {editingAnnouncement ? 'Update Announcement' : 'Post Announcement'}
-                                        </Button.Primary>
-                                    </div>
-                                )}
-                            </div>
-                        </Card>
-                    )}
-
-                    {/* Announcements List */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-xl font-semibold flex items-center gap-2">
-                                Announcements
-                            </h2>
                         </div>
-
-                        {classProps.announcements.length > 0 ? (
-                            <div className="space-y-4">
-                                {classProps.announcements.map((announcement: Announcement, index: number) => (
-                                    <Card key={index} className="p-6 hover:shadow-md transition-shadow duration-200">
-                                        <div className="flex items-start space-x-4">
-                                            <IconFrame>
-                                                <HiSpeakerphone className="h-5 w-5" />
-                                            </IconFrame>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <div className="flex items-center space-x-2">
-                                                        <span className="font-medium text-foreground-primary">
-                                                            {announcement.teacher.username}
-                                                        </span>
-                                                        <span className="text-sm text-foreground-muted">
-                                                            {new Date(announcement.createdAt).toLocaleDateString()}
-                                                        </span>
-                                                    </div>
-                                                    {appState.user.teacher && (
-                                                        <div className="flex items-center space-x-2">
-                                                            <Button.SM 
-                                                                onClick={() => handleEditAnnouncement(announcement)}
-                                                                className="flex items-center text-foreground hover:text-primary-500"
-                                                            >
-                                                                <HiPencil className="h-5 w-5" />
-                                                            </Button.SM>
-                                                            <Button.SM 
-                                                                onClick={() => handleDeleteAnnouncement(announcement.id)}
-                                                                className="flex items-center text-foreground hover:text-error"
-                                                            >
-                                                                <HiTrash className="h-5 w-5" />
-                                                            </Button.SM>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="prose prose-sm max-w-none">
-                                                    <div dangerouslySetInnerHTML={{ __html: announcement.remarks }} />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                ))}
-                            </div>
-                        ) : (
-                            <Card className="p-6">
-                                <Empty 
-                                    icon={HiSpeakerphone}
-                                    title="No Announcements"
-                                    description="There are no announcements in this class yet."
-                                />
-                            </Card>
-                        )}
                     </div>
                 </div>
+            </div>
 
-                {/* Right Sidebar */}
-                <div className="space-y-6">
-                    <Card className="p-6">
-                        <h3 className="text-lg font-semibold mb-4">Class Details</h3>
-                        <div className="space-y-4">
-                            <div className="flex items-center space-x-3">
-                                <IconFrame>
-                                    <HiAcademicCap className="h-5 w-5" />
-                                </IconFrame>
-                                <div>
-                                    <p className="text-sm text-foreground-muted">Subject</p>
-                                    <p className="font-medium">{classProps.subject}</p>
+            {/* Main Content */}
+            <div className=" ">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Left Sidebar */}
+                    <div className="lg:col-span-2 space-y-5">
+                        {/* Announcement Editor */}
+                        {appState.user.teacher && (
+                            <Card className="p-8">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex items-center space-x-4">
+                                        <IconFrame>
+                                            <HiSpeakerphone className="h-6 w-6" />
+                                        </IconFrame>
+                                        <div>
+                                            <h2 className="text-xl font-semibold text-foreground-primary">
+                                                {editingAnnouncement ? 'Edit Announcement' : 'Create Announcement'}
+                                            </h2>
+                                            <p className="text-sm text-foreground-muted">
+                                                {editingAnnouncement ? 'Update your announcement' : 'Share important updates with your class'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {editingAnnouncement && (
+                                        <Button.Light
+                                            onClick={resetEditor}
+                                        >
+                                            Cancel
+                                        </Button.Light>
+                                    )}
                                 </div>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                                <IconFrame>
-                                    <HiUserGroup className="h-5 w-5" />
-                                </IconFrame>
-                                <div>
-                                    <p className="text-sm text-foreground-muted">Section</p>
-                                    <p className="font-medium">Section {classProps.section}</p>
+                                <div className="space-y-6">
+                                    <Input.Text
+                                        value={announcementTitle}
+                                        placeholder="Announcement Title"
+                                        onChange={(e) => setAnnouncementTitle(e.target.value)}
+                                        className="w-full text-lg"
+                                    />
+                                    {announcementTitle.length > 0 && (
+                                        <div className="space-y-6">
+                                            <Textbox
+                                                content={announcementContent}
+                                                onChange={(content) => setAnnouncementContent(content)}
+                                            />
+                                            <Button.Primary 
+                                                onClick={handleSubmitAnnouncement}
+                                                className="w-full py-3 text-lg font-medium"
+                                            >
+                                                {editingAnnouncement ? 'Update Announcement' : 'Post Announcement'}
+                                            </Button.Primary>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                            {/* <div className="flex items-center space-x-3">
-                                <IconFrame>
-                                    <HiCalendar className="h-5 w-5" />
-                                </IconFrame>
-                                <div>
-                                    <p className="text-sm text-foreground-muted">Created</p>
-                                    <p className="font-medium">{new Date(classProps.createdAt).toLocaleDateString()}</p>
+                            </Card>
+                        )}
+
+                        {/* Announcements List */}
+                        <div className="space-y-6">
+
+                            {classProps.announcements.length > 0 ? (
+                                <div className="space-y-6">
+                                    {classProps.announcements.map((announcement: Announcement, index: number) => (
+                                        <Announcement
+                                            key={announcement.id}
+                                            id={announcement.id}
+                                            classId={classId}
+                                            remarks={announcement.remarks}
+                                            user={announcement.teacher}
+                                        />
+                                    ))}
                                 </div>
-                            </div> */}
+                            ) : (
+                                <Card className="p-12 text-center">
+                                    <Empty 
+                                        icon={HiSpeakerphone}
+                                        title="No Announcements"
+                                        description="There are no announcements in this class yet."
+                                    />
+                                </Card>
+                            )}
                         </div>
-                    </Card>
+                    </div>
+
+                    {/* Right Sidebar */}
+                    <div className="space-y-6">
+                        <Card>
+                            <h3 className="text-lg font-semibold mb-6 text-foreground-primary">Class Details</h3>
+                            <div className="space-y-6">
+                                <div className="flex items-center space-x-4">
+                                    <IconFrame>
+                                        <HiAcademicCap className="h-5 w-5" />
+                                    </IconFrame>
+                                    <div>
+                                        <p className="text-sm text-foreground-muted">Subject</p>
+                                        <p className="font-semibold text-foreground-primary">{classProps.subject}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center space-x-4">
+                                    <IconFrame>
+                                        <HiUserGroup className="h-5 w-5" />
+                                    </IconFrame>
+                                    <div>
+                                        <p className="text-sm text-foreground-muted">Section</p>
+                                        <p className="font-semibold text-foreground-primary">Section {classProps.section}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
                 </div>
             </div>
         </div>

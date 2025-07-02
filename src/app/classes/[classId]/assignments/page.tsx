@@ -8,7 +8,7 @@ import Loading from "@/components/Loading";
 import CreateAssignment from "@/components/class/forms/CreateAssignment";
 import Empty from "@/components/ui/Empty";
 import CreateSection from "@/components/class/forms/CreateSection";
-import { HiClipboardList, HiFilter, HiSearch } from "react-icons/hi";
+import { HiClipboardList, HiFilter, HiPlus, HiSearch } from "react-icons/hi";
 import { initializeSocket, joinClass, leaveClass } from "@/lib/socket";
 import { trpc } from "@/utils/trpc";
 import type { RouterOutputs } from "@/utils/trpc";
@@ -18,6 +18,7 @@ import Assignment from "@/components/class/Assignment";
 import Section from "@/components/class/Section";
 import Input from "@/components/ui/Input";
 import Card from "@/components/ui/Card";
+import Dropdown from "@/components/ui/Dropdown";
 
 type Section = {
     id: string;
@@ -335,10 +336,17 @@ export default function AssignmentListPage({ params }: { params: { classId: stri
                         <>
                             <Button.Light
                                 onClick={() => dispatch(openModal({body: <CreateSection classId={classId} />, header: 'Create Section'}))}
-                            >Add section</Button.Light>
+                                className="flex flex-row items-center gap-2"
+                            >
+                                <HiPlus className="w-4 h-4" />
+                                Section
+                            </Button.Light>
                             <Button.Primary
                                 onClick={() => dispatch(openModal({body: <CreateAssignment classId={classId} sections={sections} />, header: 'Create Assignment'}))}
-                            >Add assignment</Button.Primary>
+                                className="flex flex-row items-center gap-2"
+                            >
+                                <HiPlus className="w-4 h-4" />
+                                Assignment</Button.Primary>
                         </>
                     )}
                 </div>

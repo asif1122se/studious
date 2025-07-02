@@ -383,11 +383,13 @@ export default function EditGrades({ params }: { params: { classId: string } }) 
 						)}
 					</>
 				) : (
+					<Card>
 					<Empty
 						icon={MdAssignment}
 						title="No Assignments"
-						description="There are no assignments in this class yet. Create assignments to start grading."
-					/>
+							description="There are no assignments in this class yet. Create assignments to start grading."
+						/>
+					</Card>
 				)}
 			</div>
 

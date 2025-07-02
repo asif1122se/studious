@@ -145,3 +145,36 @@ a {
     text-decoration: none;
     color: inherit;
 }
+
+.richText {
+  p {
+    margin-bottom: 1rem;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    font-size: 1.25rem;
+    line-height: 1.2;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  
+  ul {
+    margin-bottom: 1rem;
+  }
+
+  ol {
+    margin-bottom: 1rem;
+  }
+  
+  li {
+    margin-bottom: 0.5rem;
+  }
+
+  a {
+    color: var(--color-primary-500);
+  }
+}

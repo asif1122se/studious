@@ -8,7 +8,7 @@ import JoinClass from "./class/forms/JoinClass";
 import Button from "./ui/Button";
 import Badge from "./Badge";
 import { useState } from "react";
-import { HiMenu, HiX, HiPlus, HiHome, HiAcademicCap, HiCalendar, HiOfficeBuilding } from "react-icons/hi";
+import { HiMenu, HiX, HiPlus, HiHome, HiAcademicCap, HiCalendar, HiOfficeBuilding, HiLogout } from "react-icons/hi";
 import ProfilePicture from "@/components/ui/ProfilePicture";
 import UserProfile from "@/components/ui/UserProfile";
 
@@ -99,34 +99,59 @@ export default function Navbar() {
     }
 
     return (
-        <aside className="fixed left-0 top-0 h-full w-16 bg-background border-r border-border flex flex-col items-center py-4 space-y-4 z-30">
-            {/* Logo */}
-            <a href="/classes" className="flex flex-col items-center space-y-1">
-                <img src="/logo.png" alt="logo" className="w-8" />
-            </a>
+        <>
+            {/* Desktop Sidebar */}
+            <aside className="hidden md:flex fixed left-0 top-0 h-full w-16 bg-background border-r border-border flex-col items-center py-4 space-y-4 z-30">
+                {/* Logo */}
+                <a href="/classes" className="flex flex-col items-center space-y-1">
+                    <img src="/logo.png" alt="logo" className="w-8" />
+                </a>
 
-            {/* Navigation Icons */}
-            <div className="flex flex-col items-center space-y-2 flex-grow">
-                <Button.Select href="/classes">
-                    <HiAcademicCap className="h-5 w-5" />
-                </Button.Select>
-                <Button.Select href="/agenda">
-                    <HiCalendar className="h-5 w-5" />
-                </Button.Select>
-                {appState.user.institutionIds && appState.user.institutionIds.length > 0 && (
-                    <Button.Select href={`/institute/${appState.user.institutionIds[0].id}`}>
-                        <HiOfficeBuilding className="h-5 w-5" />
+                {/* Navigation Icons */}
+                <div className="flex flex-col items-center space-y-2 flex-grow">
+                    <Button.Select href="/classes">
+                        <HiAcademicCap className="h-5 w-5" />
                     </Button.Select>
-                )}
-            </div>
+                    <Button.Select href="/agenda">
+                        <HiCalendar className="h-5 w-5" />
+                    </Button.Select>
+                    {appState.user.institutionIds && appState.user.institutionIds.length > 0 && (
+                        <Button.Select href={`/institute/${appState.user.institutionIds[0].id}`}>
+                            <HiOfficeBuilding className="h-5 w-5" />
+                        </Button.Select>
+                    )}
+                </div>
 
-            {/* User Profile */}
-            <div className="w-full flex justify-center px-2">
-                <UserProfile 
-                    username={appState.user.username || 'User'} 
-                    className="w-full"
-                />
+                {/* User Profile */}
+                <div className="w-full flex justify-center px-2">
+                    <UserProfile 
+                        username={appState.user.username || 'User'} 
+                        className="w-full"
+                    />
+                </div>
+            </aside>
+
+            {/* Mobile Floating Navigation */}
+            <div className="md:hidden">
+                {/* Floating Navigation Buttons */}
+                <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-50 flex flex-col space-y-3">
+                    {/* Classes Button */}
+                    <Button.Light href="/classes">
+                        <HiAcademicCap className="h-5 w-5 text-foreground" />
+                    </Button.Light>
+
+                    {/* Agenda Button */}
+                    <Button.Light href="/agenda">
+                        <HiCalendar className="h-5 w-5 text-foreground" />
+                    </Button.Light>
+
+                    <Button.Light
+                        className="bg-red-500 hover:bg-red-600 text-white"
+                    >
+                        <HiLogout className="h-5 w-5" />
+                    </Button.Light>
+                </div>
             </div>
-        </aside>
+        </>
     );
 }

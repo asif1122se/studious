@@ -11,7 +11,7 @@ export default function LayoutContent({
     const appState = useSelector((state: RootState) => state.app);
 
     return (
-        <div className={`flex-grow text-sm w-full flex justify-center overflow-y-auto ${appState.user.loggedIn ? 'pl-16' : ''}`}>
+        <div className={`flex-grow text-sm w-full flex justify-center overflow-y-auto ${appState.user.loggedIn ? 'md:pl-16 lg:pl-16 xl:pl-16' : ''}`}>
             <div className="w-full">
                 {children}
             </div>

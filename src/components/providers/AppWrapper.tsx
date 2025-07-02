@@ -13,8 +13,9 @@ import Loading from "@/components/Loading";
 const ThemeToggle = ({ theme, onToggle }: { theme: string, onToggle: () => void }) => (
     <button 
         className={`
-            border-border border px-5 py-3 rounded-md shadow-sm
+            border-border border px-3 py-3 rounded-md shadow-sm
             transition-all duration-200 ease-in-out
+            bg-background
             ${theme === 'dark' 
                 ? 'hover:bg-warning hover:text-white hover:border-warning' 
                 : 'hover:bg-primary-600 hover:text-white hover:border-primary-600'
@@ -107,7 +108,7 @@ export default function AppWrapper({ children }: Readonly<{
             )}
 
             {/* Theme Toggle */}
-            <div className="fixed bottom-0 right-0 p-6 z-50">
+            <div className="fixed bottom-0 right-0 p-6 z-50 hidden md:block">
                 <ThemeToggle theme={theme} onToggle={toggleTheme} />
             </div>
         </div>
