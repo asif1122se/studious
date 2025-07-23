@@ -30,6 +30,7 @@ import { openModal } from "@/store/appSlice";
 import { MdChecklist, MdSchool } from "react-icons/md";
 import { RubricGrade, RubricCriteria } from "@/components/ui/EditableRubric";
 import { calculateGrade } from "@/lib/gradeCalculator";
+import FileSelector from "@/components/ui/FileSelector";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 type Assignment = RouterOutput["assignment"]["get"];
@@ -267,7 +268,7 @@ export default function AssignmentPage({ params }: { params: { classId: string, 
     return (
         <div>
             <div className="flex flex-col space-y-9 w-full">
-                <div className="rounded-lg flex flex-row space-x-2 justify-between">
+                <div className="rounded-lg flex flex-col space-y-4 lg:flex-row lg:space-x-4 lg:space-y-0 justify-between">
                     <div className="flex flex-col space-y-4 w-full">
                         <Card className="flex flex-col space-y-4 w-full">
                             <div className="flex items-center justify-between">
@@ -292,7 +293,7 @@ export default function AssignmentPage({ params }: { params: { classId: string, 
                                 <span className="flex-shrink">{assignmentData.instructions}</span>
                             </div>
 
-                            {!appState.user.teacher && assignmentData.attachments.length > 0 && <div className="flex flex-col space-y-4">
+                            {!appState.user.teacher && assignmentData.attachments.length > 0 && <div className="flex flex-col space-y-4 w-full">
                                 <div className="flex flex-row border-t border-border-secondary pt-4">
                                     {assignmentData.attachments.map((attachment: Attachment) => (
                                         <div className="flex flex-col rounded-md border border-border-secondary hover:bg-background-subtle transition-colors" key={attachment.id}>
@@ -309,7 +310,7 @@ export default function AssignmentPage({ params }: { params: { classId: string, 
                                     ))}
                                 </div>
                                 {/* Show grading information if any */}
-                                <div className="border-t border-border-secondary pt-4">
+                                <div className="border-t border-border-secondary pt-4 w-full">
                                     <div className="flex items-center justify-between mb-3">
                                         <span className="text-sm font-semibold text-foreground-secondary">Grading Tools</span>
                                         {appState.user.teacher && (
@@ -531,8 +532,8 @@ export default function AssignmentPage({ params }: { params: { classId: string, 
                     </div>
 
                     {/* Show attachments (for teacher) */}
-                    {appState.user.teacher && <div className="flex flex-col space-y-4">
-                    <Card className="w-[20rem] shrink-0 grow-0 flex flex-col justify-between">
+                    {appState.user.teacher && <div className="min-w-[18rem] flex flex-col space-y-4">
+                    <Card className="shrink-0 grow-0 flex flex-col justify-between">
                         <div className="flex flex-col space-y-2">
                             <div className="text-lg font-semibold mb-2">Attachments</div>
                             {assignmentData.attachments.length === 0 && (
@@ -552,19 +553,34 @@ export default function AssignmentPage({ params }: { params: { classId: string, 
                                 />
                             ))}
                         </div>
-                        <div className="flex flex-row justify-end space-x-2 mt-4">
-                            <input
-                                type="file"
-                                className="hidden"
-                                ref={assignmentFileInput}
-                                onChange={handleAssignmentFileUpload}
+                        <div className="mt-4">
+                            <FileSelector
+                                classId={params.classId}
+                                onFilesSelected={(files) => {
+                                    const newFiles = files.map(file => ({
+                                        name: file.name,
+                                        type: file.type,
+                                        size: file.size,
+                                        data: file.data || '',
+                                    }));
+                                    
+                                    // Upload new files
+                                    if (newFiles.length > 0) {
+                                        setIsSavingAssignment(true);
+                                        updateAssignment.mutate({
+                                            classId: params.classId,
+                                            id: params.assignmentId,
+                                            files: newFiles,
+                                        });
+                                    }
+                                }}
+                                selectedFiles={[]}
+                                accept="*/*"
+                                multiple={true}
+                                maxSize={50 * 1024 * 1024} // 50MB
+                                maxFiles={20}
+                                showPreview={true}
                             />
-                            <Button.Primary
-                                onClick={() => assignmentFileInput?.current?.click()}
-                                disabled={isSavingAssignment}
-                            >
-                                {isSavingAssignment ? 'Uploading...' : 'Attach File'}
-                            </Button.Primary>
                         </div>
                     </Card>
                                                 {/* Show grading information if any */}
@@ -593,8 +609,8 @@ export default function AssignmentPage({ params }: { params: { classId: string, 
                                 )}
                             </Card>
                     </div>}
-                    {/* show submission + feedback (student) */}
-                    {!appState.user.teacher && <Card className="w-[20rem] shrink-0 grow-0">
+                    {/* show submission (student) */}
+                    {!appState.user.teacher && <Card className="min-w-[18rem] shrink-0 grow-0">
                         {appState.user.student && submissionData && (
                             <div className="flex flex-col justify-between space-y-3 h-full">
                                 <div className="space-y-3">
@@ -638,30 +654,56 @@ export default function AssignmentPage({ params }: { params: { classId: string, 
                                         </div>
                                     )}
                                 </div>
-                                <div className="flex flex-row justify-end space-x-2">
-                                    <input
-                                        type="file"
-                                        className="hidden"
-                                        ref={fileInput}
-                                        onChange={handleFileUpload}
-                                    />
-                                    {!submissionData.submitted ? (
-                                        <>
-                                            <Button.Light onClick={() => fileInput?.current?.click()}>
-                                                Attach
-                                            </Button.Light>
+                                <div className="space-y-3">
+                                    {!submissionData.submitted && (
+                                        <FileSelector
+                                            classId={params.classId}
+                                            onFilesSelected={(files) => {
+                                                const newFiles = files.map(file => ({
+                                                    name: file.name,
+                                                    type: file.type,
+                                                    size: file.size,
+                                                    data: file.data || '',
+                                                }));
+                                                
+                                                // Separate new files from existing files
+                                                const uploadFiles = newFiles.filter(file => !file.id);
+                                                // const existingFileIds = newFiles.filter(file => file.id).map(file => file.id!);
+                                                const existingFileIds = newFiles.filter(file => file.id).map(file => file.id!);
+                                                
+                                                if (uploadFiles.length > 0 || existingFileIds.length > 0) {
+                                                    updateSubmission.mutate({
+                                                        assignmentId: params.assignmentId,
+                                                        classId: params.classId,
+                                                        submissionId: submissionData.id,
+                                                        newAttachments: uploadFiles,
+                                                        existingFileIds: existingFileIds.length > 0 ? existingFileIds : undefined,
+                                                    });
+                                                }
+                                            }}
+                                            selectedFiles={[]}
+                                            accept="*/*"
+                                            multiple={true}
+                                            maxSize={50 * 1024 * 1024} // 50MB
+                                            maxFiles={20}
+                                            showPreview={true}
+                                        />
+                                    )}
+                                    
+                                    <div className="flex flex-row justify-end space-x-2">
+                                        {!submissionData.submitted ? (
                                             <Button.Primary onClick={handleSubmit}>
                                                 Submit
                                             </Button.Primary>
-                                        </>
-                                    ) : (
-                                        <div className="flex flex-row items-center space-x-3">
-                                            <Button.Primary onClick={handleUnsubmit}>
-                                                Unsubmit
-                                            </Button.Primary>
-                                            <span className="text-foreground-muted">Submitted</span>
-                                        </div>
-                                    )}
+                                        ) : (
+                                            <div className="flex flex-row items-center space-x-3">
+                                                <Button.Primary onClick={handleUnsubmit}>
+                                                    Unsubmit
+                                                </Button.Primary>
+                                                <span className="text-foreground-muted">Submitted</span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         )}

@@ -88,9 +88,6 @@ export default function GradingBoundaries({ boundaries, onChange, readonly = fal
 				</div>
 				{!readonly && (
 					<div className="flex gap-2">
-						<Button.Light onClick={resetToDefaults}>
-							Reset to Defaults
-						</Button.Light>
 						<Button.Light onClick={addBoundary} className="flex items-center gap-2">
 							<MdAdd className="w-4 h-4" />
 							Add Grade

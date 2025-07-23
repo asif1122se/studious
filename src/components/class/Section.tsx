@@ -113,7 +113,8 @@ export default function Section({
                 late={assignment.late}
                 submitted={assignment.submitted}
                 returned={assignment.returned}
-            />
+                inProgress={assignment.inProgress}
+                />
         ))}
             </div>
         </Shelf>

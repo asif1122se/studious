@@ -22,8 +22,8 @@ export function getFileIconInfo(type: string): FileIconInfo {
     if (type.startsWith('image/')) {
         return {
             icon: <HiPhotograph />,
-            backgroundColor: 'bg-emerald-100',
-            baseColor: 'text-emerald-500'
+            backgroundColor: 'bg-green-100',
+            baseColor: 'text-green-500'
         };
     }
 

@@ -168,7 +168,7 @@ export default function AttendancePage({ params }: { params: { classId: string }
                         </Button.SM>
                         <Button.SM 
                             onClick={() => dispatch(openModal({
-                                body: <UpdateClassEvent id={row.id} />,
+                                body: <UpdateClassEvent id={row.id} onUpdate={() => refetchAttendance()} />,
                                 header: 'Edit Event'
                             }))}
                             className="flex items-center text-foreground hover:text-primary-500"
@@ -202,7 +202,7 @@ export default function AttendancePage({ params }: { params: { classId: string }
                 {appState.user.teacher && (
                     <Button.Primary
                         onClick={() => dispatch(openModal({
-                            body: <CreateClassEvent classId={params.classId} />,
+                            body: <CreateClassEvent classId={params.classId} onCreate={refetchAttendance} />,
                             header: 'Add Event'
                         }))}
                         className="flex items-center space-x-2"

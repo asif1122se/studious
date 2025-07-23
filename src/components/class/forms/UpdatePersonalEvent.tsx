@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { addAlert } from "@/store/appSlice";
+import { addAlert, closeModal } from "@/store/appSlice";
 import { AlertLevel } from "@/lib/alertLevel";
 import { RouterOutputs, trpc } from "@/utils/trpc";
 import Button from "@/components/ui/Button";
@@ -25,7 +25,7 @@ export default function UpdatePersonalEvent({ id, onUpdate }: UpdatePersonalEven
 
   const dispatch = useDispatch();
 
-  const { data: event } = trpc.event.get.useQuery({ id });
+  const { data: event, isPending } = trpc.event.get.useQuery({ id });
 
   useEffect(() => {
     if (event?.event) {
@@ -60,10 +60,11 @@ export default function UpdatePersonalEvent({ id, onUpdate }: UpdatePersonalEven
       id,
       data: eventData,
     });
+    dispatch(closeModal());
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 w-[24rem]">
+    <form onSubmit={handleSubmit} className="space-y-4 w-[24rem] max-w-full">
       <Input.Text
         label="Name"
         value={eventData.name}
@@ -104,7 +105,7 @@ export default function UpdatePersonalEvent({ id, onUpdate }: UpdatePersonalEven
       />
       <div className="flex justify-end space-x-2">
         <Button.Light>Cancel</Button.Light>
-        <Button.Primary type="submit">Update Event</Button.Primary>
+        <Button.Primary isLoading={isPending} type="submit">{isPending ? 'Updating event' : 'Update event'}</Button.Primary>
       </div>
     </form>
   );

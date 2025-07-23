@@ -1,6 +1,6 @@
-# OpenStack LMS
+# Studious LMS
 
-OpenStack is an open-source Learning Management System (LMS) designed to provide a modern, intuitive educational platform. Built with Next.js and integrating calendar functionalities with a comprehensive class management system, OpenStack aims to streamline the educational experience for both educators and students.
+Studious is an open-source Learning Management System (LMS) designed to provide a modern, intuitive educational platform. Built with Next.js and integrating calendar functionalities with a comprehensive class management system, Studious aims to streamline the educational experience for both educators and students.
 
 ## 🚀 Features
 
@@ -40,8 +40,8 @@ This project is currently in active development. While core features are functio
 
 1. Clone the repository
 ```bash
-git clone https://github.com/openstack-lms/classroom.git
-cd openstack
+git clone https://github.com/studious-lms/classroom.git
+cd studious
 ```
 
 2. Install dependencies
@@ -88,21 +88,18 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🤝 Team
 
 - Alan Shen - Project Lead & Devloper
-- [Team Member 1] - Frontend Developer
-- [Team Member 2] - Backend Developer
-- [Team Member 3] - UI/UX Designer
 
 ## 📬 Contact
 
-Project Link: [https://github.com/openstack-lms/classroom](https://github.com/openstack-lms/classroom)
+Project Link: [https://github.com/studious-lms/classroom](https://github.com/studious-lms/classroom)
 
-For questions or feedback (including collaboration or demos), please reach out to alan.shen27@gmail.com
+For questions or feedback (including collaboration or demos), please reach out to support@studious.sh
 
 ## 🙏 Acknowledgments
 
-- Thanks to all contributors who have helped shape OpenStack
+- Thanks to all contributors who have helped shape studious
 - All the open-source projects that made this possible
 
 ---
 
-*Note: This project is not affiliated with OpenStack cloud computing software.*
+*Note: This project is not affiliated with studious cloud computing software.*

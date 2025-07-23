@@ -7,16 +7,19 @@ import { useDispatch } from "react-redux";
 import Input from "../../ui/Input";
 import Button from "../../ui/Button";
 import { trpc } from "@/utils/trpc";
+import { validate } from "@/lib/validation";
 
 interface JoinClassOptions {
     onCreate: ()=>void;
 }
 
 export default function JoinClass({ onCreate }: JoinClassOptions) {
+    const REQUIRED_KEYS = ['classCode']
+
     const [classCode, setClassCode] = useState<string>('');
     const dispatch = useDispatch();
 
-    const joinClass = trpc.class.join.useMutation({
+    const {mutate: joinClass, isPending} = trpc.class.join.useMutation({
         onSuccess: (data) => {
             onCreate();
             dispatch(addAlert({ level: AlertLevel.SUCCESS, remark: 'Joined class successfully' }));
@@ -28,13 +31,24 @@ export default function JoinClass({ onCreate }: JoinClassOptions) {
         },
     });
 
+    const handleJoinClass = () => {
+        const validated = validate(REQUIRED_KEYS, { classCode });
+        console.log(validated)
+        if (!validated.valid) return dispatch(addAlert({
+            level: AlertLevel.WARNING,
+            remark: validated.remark,
+        }));
+
+        joinClass({ classCode })
+    }
+
     return (<div className="flex flex-col space-y-3">
         <div className="flex flex-row space-x-2 text-sm">
             <Input.Text
                 value={classCode}
                 onChange={(e) => setClassCode(e.target.value)}
                 placeholder="Class code here..." />
-            <Button.Primary onClick={() => joinClass.mutate({ classCode })}>Join</Button.Primary>
+            <Button.Primary onClick={handleJoinClass} isLoading={isPending}>Join</Button.Primary>
         </div>
     </div>);
 }

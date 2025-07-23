@@ -133,7 +133,7 @@ export default function CreateGradingBoundary({ classId, existingGradingBoundary
 	};
 
 	return (
-		<div className="space-y-6 w-[35rem]">
+		<div className="space-y-6 w-[35rem] max-w-full">
 			{/* Template Selection */}
 			{!existingGradingBoundary && (
 				<div>
@@ -141,7 +141,7 @@ export default function CreateGradingBoundary({ classId, existingGradingBoundary
 						<span className="text-sm font-semibold text-foreground-secondary">Templates</span>
 					</div>
 					
-					<div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-64 overflow-y-auto">
 						{gradingBoundaryTemplates.map((template) => (
 							<Card
 								key={template.id}
@@ -186,7 +186,7 @@ export default function CreateGradingBoundary({ classId, existingGradingBoundary
 				</Button.Light>
 				<Button.Primary
 					onClick={handleSave}
-					disabled={isPending}
+					isLoading={isPending}
 				>
 					{isPending ? 'Saving...' : (existingGradingBoundary ? 'Update Grading Boundary' : 'Create Grading Boundary')}
 				</Button.Primary>

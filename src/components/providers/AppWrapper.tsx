@@ -29,9 +29,9 @@ const ThemeToggle = ({ theme, onToggle }: { theme: string, onToggle: () => void 
 );
 
 const Modal = ({ header, body, onClose }: { header: string, body: React.ReactNode, onClose: () => void }) => (
-    <div className="absolute z-30 top-0 left-0 h-full w-full flex justify-center items-center bg-background-subtle/40 pointer-events-auto backdrop-blur-sm">
+    <div className="absolute z-40 top-0 left-0 h-full w-full flex justify-center items-center bg-background-subtle/40 pointer-events-auto backdrop-blur-sm">
         <div 
-            className="border-border bg-background px-7 py-6 border rounded-md shadow-md transform transition-all duration-300 ease-in-out mx-4 max-h-[40rem] overflow-y-auto"
+            className="border-border bg-background px-7 py-6 border rounded-md shadow-md transform transition-all duration-300 ease-in-out mx-4 overflow-y-auto max-h-[95vh]"
         >
             <div className="flex flex-row justify-between items-center mb-6">
                 <div className="text-lg font-bold text-foreground">

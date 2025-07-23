@@ -224,13 +224,14 @@ export default function AttachAssignmentToEvent({ eventId, onAssignmentAttached 
       <div className="flex items-center justify-end space-x-3 pt-6 border-t border-border">
         <Button.Light
           onClick={() => dispatch(closeModal())}
-          disabled={attachAssignments.isPending}
+          isLoading={attachAssignments.isPending}
         >
           Cancel
         </Button.Light>
         <Button.Primary
           onClick={handleAttachAssignments}
-          disabled={selectedAssignments.length === 0 || attachAssignments.isPending}
+          isLoading={attachAssignments.isPending}
+          disabled={selectedAssignments.length === 0}
           className="flex items-center space-x-2"
         >
           <HiPaperClip className="w-4 h-4" />

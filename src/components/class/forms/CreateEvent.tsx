@@ -70,7 +70,7 @@ export default function CreateEvent({
     };
 
     return (
-        <div className="w-[30rem]">
+        <div className="w-[30rem] max-w-full">
             <div className="flex flex-col space-y-3 mt-3">
                 {personal && <div className="flex flex-col space-y-1">
                     <label className="text-xs font-semibold">Event name:</label>
@@ -146,7 +146,7 @@ export default function CreateEvent({
                 </div>
                 <Button.Primary
                     onClick={handleCreateEvent}
-                    disabled={createEvent.isPending}
+                    isLoading={createEvent.isPending}
                 >
                     {createEvent.isPending ? 'Creating...' : 'Add Event'}
                 </Button.Primary>

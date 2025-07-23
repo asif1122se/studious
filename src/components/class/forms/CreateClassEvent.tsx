@@ -11,23 +11,26 @@ import { emitEventCreate } from "@/lib/socket";
 
 interface CreateClassEventProps {
   classId: string;
+  onCreate: () => void;
 }
 
-export default function CreateClassEvent({ classId }: CreateClassEventProps) {
+export default function CreateClassEvent({ classId, onCreate }: CreateClassEventProps) {
   const [eventData, setEventData] = useState({
     name: "",
     location: "",
     remarks: "",
     startTime: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
     endTime: format(addHours(new Date(), 1), "yyyy-MM-dd'T'HH:mm"), // 1 hour later
+    onCreate,
     classId: classId,
     color: "#3B82F6",
   });
 
   const dispatch = useDispatch();
 
-  const createEvent = trpc.event.create.useMutation({
+  const {mutate: createEvent, isPending} = trpc.event.create.useMutation({
     onSuccess: (data) => {
+      onCreate();
       emitEventCreate(data.event);
       dispatch(addAlert({ level: AlertLevel.SUCCESS, remark: "Event created successfully" }));
       dispatch(closeModal());
@@ -37,13 +40,13 @@ export default function CreateClassEvent({ classId }: CreateClassEventProps) {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createEvent.mutate(eventData);
+  const handleSubmit = () => {
+    createEvent(eventData);
+    dispatch(closeModal());
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 min-w-[24rem]">
+    <div className="space-y-4 w-[24rem] max-w-full">
       <Input.Text
         label="Name"
         value={eventData.name}
@@ -84,8 +87,10 @@ export default function CreateClassEvent({ classId }: CreateClassEventProps) {
       />
       <div className="flex justify-end space-x-2">
         <Button.Light onClick={() => dispatch(closeModal())}>Cancel</Button.Light>
-        <Button.Primary type="submit">Create Event</Button.Primary>
+        <Button.Primary isLoading={isPending} onClick={handleSubmit} type="submit">{
+            isPending ? "Creating event..." : "Create event"
+        }</Button.Primary>
       </div>
-    </form>
+    </div>
   );
 } 

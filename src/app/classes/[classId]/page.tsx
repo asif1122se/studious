@@ -157,9 +157,17 @@ export default function ClassHome({ params }: { params: { classId: string } }) {
             {/* Banner */}
             <div 
                 className="relative overflow-hidden rounded-md mb-5"
-                style={{ backgroundColor: classColor }}
+                style={{ background: `linear-gradient(135deg, ${classColor} 0%, ${classColor}dd 100%)` }}
             >
-                <div className="absolute inset-0 bg-black/10"></div>
+                {/* Decorative background pattern */}
+                <div className="absolute inset-0 opacity-10 pointer-events-none select-none">
+                    <div className="absolute top-0 right-0 w-64 h-64 transform translate-x-12 -translate-y-12">
+                        <div className="w-full h-full border-2 border-white rounded-full"></div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 w-40 h-40 transform -translate-x-10 translate-y-10">
+                        <div className="w-full h-full border border-white rounded-full"></div>
+                    </div>
+                </div>
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="flex items-center space-x-4 mb-6">
                         <Link 
@@ -208,9 +216,6 @@ export default function ClassHome({ params }: { params: { classId: string } }) {
                             <Card className="p-8">
                                 <div className="flex items-center justify-between mb-6">
                                     <div className="flex items-center space-x-4">
-                                        <IconFrame>
-                                            <HiSpeakerphone className="h-6 w-6" />
-                                        </IconFrame>
                                         <div>
                                             <h2 className="text-xl font-semibold text-foreground-primary">
                                                 {editingAnnouncement ? 'Edit Announcement' : 'Create Announcement'}
@@ -243,7 +248,6 @@ export default function ClassHome({ params }: { params: { classId: string } }) {
                                             />
                                             <Button.Primary 
                                                 onClick={handleSubmitAnnouncement}
-                                                className="w-full py-3 text-lg font-medium"
                                             >
                                                 {editingAnnouncement ? 'Update Announcement' : 'Post Announcement'}
                                             </Button.Primary>
@@ -265,6 +269,27 @@ export default function ClassHome({ params }: { params: { classId: string } }) {
                                             classId={classId}
                                             remarks={announcement.remarks}
                                             user={announcement.teacher}
+                                            onUpdate={(result) => {
+                                                setClassProps((prev: ClassData | null) => {
+                                                    if (!prev) return null;
+                                                    return {
+                                                        ...prev,
+                                                        announcements: prev.announcements.map((a: Announcement) => a.id === announcement.id ? {
+                                                            ...a,
+                                                            remarks: result.announcement.remarks
+                                                        } : a)
+                                                    };
+                                                });
+                                            }}
+                                            onDelete={() => {
+                                                setClassProps((prev: ClassData | null) => {
+                                                    if (!prev) return null;
+                                                    return {
+                                                        ...prev,
+                                                        announcements: prev.announcements.filter((a: Announcement) => a.id !== announcement.id)
+                                                    };
+                                                });
+                                            }}
                                         />
                                     ))}
                                 </div>

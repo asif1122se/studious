@@ -27,8 +27,8 @@
     /* Brand colors - more muted */
     --color-primary-50: #F0F9FF;
     --color-primary-100: #E0F2FE;
-    --color-primary-500: #498DD5; /*blue - softer than pure blue */
-    --color-primary-600: #3371B7;  /* Darker sky blue */
+    --color-primary-500: #3EA7D5; /*blue - softer than pure blue */
+    --color-primary-600: #2E8BC0;  /* Darker sky blue */
     
     /* Status colors */
     --color-success: #10B981;
@@ -61,8 +61,8 @@
     /* Brand colors - even softer in dark mode */
     --color-primary-50: #1A1A1A;
     --color-primary-100: #252525;
-    --color-primary-500: #498DD5;  /* Lighter sky blue for dark mode */
-    --color-primary-600: #3371B7;  /* Slightly muted sky blue */
+    --color-primary-500: #3EA7D5;  /* Lighter sky blue for dark mode */
+    --color-primary-600: #2E8BC0;  /* Slightly muted sky blue */
     
     /* Status colors - slightly muted but still distinct */
     --color-success: #059669;
@@ -147,34 +147,84 @@ a {
 }
 
 .richText {
-  p {
-    margin-bottom: 1rem;
-  }
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #222;
+  word-break: break-word;
+}
 
-  h1, h2, h3, h4, h5, h6 {
-    margin-bottom: 1rem;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    font-size: 1.25rem;
-    line-height: 1.2;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-  }
+.richText h1,
+.richText h2,
+.richText h3,
+.richText h4,
+.richText h5,
+.richText h6 {
+  font-weight: 600;
+  margin: 1.2em 0 0.5em 0;
+  line-height: 1.2;
+}
 
-  
-  ul {
-    margin-bottom: 1rem;
-  }
+.richText p {
+  margin: 0.5em 0;
+}
 
-  ol {
-    margin-bottom: 1rem;
-  }
-  
-  li {
-    margin-bottom: 0.5rem;
-  }
+.richText ul,
+.richText ol {
+  margin: 0.5em 0 0.5em 1.5em;
+  padding: 0;
+}
 
-  a {
-    color: var(--color-primary-500);
-  }
+.richText li {
+  margin: 0.25em 0;
+}
+
+.richText a {
+  color: #2563eb;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.richText a:hover {
+  color: #1d4ed8;
+}
+
+.richText strong,
+.richText b {
+  font-weight: 600;
+}
+
+.richText em,
+.richText i {
+  font-style: italic;
+}
+
+.richText u {
+  text-decoration: underline;
+}
+
+.richText blockquote {
+  border-left: 3px solid #e5e7eb;
+  color: #6b7280;
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  background: #f9fafb;
+  border-radius: 0.25em;
+}
+
+.richText code {
+  background: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 0.2em;
+  font-size: 0.95em;
+  font-family: 'Fira Mono', 'Consolas', monospace;
+}
+
+.richText pre {
+  background: #f3f4f6;
+  padding: 1em;
+  border-radius: 0.3em;
+  overflow-x: auto;
+  font-size: 0.95em;
+  font-family: 'Fira Mono', 'Consolas', monospace;
+  margin: 1em 0;
 }

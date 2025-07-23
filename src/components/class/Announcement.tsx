@@ -1,20 +1,25 @@
 import Button from "../ui/Button";
-import { HiCheck, HiPencil, HiTrash, HiSpeakerphone } from "react-icons/hi";
+import { HiCheck, HiPencil, HiTrash } from "react-icons/hi";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addAlert, setRefetch } from "@/store/appSlice";
 import IconFrame from "../ui/IconFrame";
 import { RootState } from "@/store/store";
 import Textbox from "../ui/Textbox";
-import { trpc } from "@/utils/trpc";
+import { RouterOutputs, trpc } from "@/utils/trpc";
 import { RouterInputs } from "@/utils/trpc";
 import Card from "../ui/Card";
+import ProfilePicture from '../ui/ProfilePicture';
+import { AlertLevel } from "@/lib/alertLevel";
+import Badge from "../Badge";
 
 export default function Announcement({
     classId,
     id,
     remarks,
     user,
+    onUpdate,
+    onDelete,
 }: {
     id: string,
     classId: string,
@@ -22,7 +27,10 @@ export default function Announcement({
     user: {
         id: string,
         username: string,
+        profilePicUrl?: string,
     }
+    onUpdate: (result: RouterOutputs['announcement']['update']) => void,
+    onDelete: () => void,
 }) {
     const dispatch = useDispatch();
     const [editing, setEditing] = useState(false);
@@ -38,48 +46,49 @@ export default function Announcement({
     const canEdit = currentUser.id === user.id;
 
     const updateAnnouncement = trpc.announcement.update.useMutation({
-        onSuccess: () => {
+        onSuccess: (result) => {
             setEditing(false);
             dispatch(setRefetch(true));
-            dispatch(addAlert({ level: "success", remark: "Announcement updated successfully" }));
+            dispatch(addAlert({ level: AlertLevel.SUCCESS, remark: "Announcement updated successfully" }));
+            onUpdate(result);
         },
         onError: (error) => {
-            dispatch(addAlert({ level: "error", remark: error.message }));
+            dispatch(addAlert({ level: AlertLevel.ERROR, remark: error.message }));
         },
     });
 
     const deleteAnnouncement = trpc.announcement.delete.useMutation({
         onSuccess: () => {
             dispatch(setRefetch(true));
-            dispatch(addAlert({ level: "success", remark: "Announcement deleted successfully" }));
+            dispatch(addAlert({ level: AlertLevel.SUCCESS, remark: "Announcement deleted successfully" }));
+            onDelete();
         },
         onError: (error) => {
-            dispatch(addAlert({ level: "error", remark: error.message }));
+            dispatch(addAlert({ level: AlertLevel.ERROR, remark: error.message }));
         },
     });
 
     return (
         <Card className="hover:shadow-lg transition-all duration-200">
             <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                    <IconFrame>
-                        <HiSpeakerphone className="h-5 w-5" />
-                    </IconFrame>
-                </div>
+
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-3">
+                            <ProfilePicture
+                                username={user.username}
+                                size="sm"
+                            />
                             <span className="font-semibold text-foreground-primary">
                                 {user.username}
                             </span>
-                            <span className="text-sm text-foreground-muted bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
+                            <Badge variant="foreground">
                                 {new Date().toLocaleDateString()}
-                            </span>
+                            </Badge>
                         </div>
                         {canEdit && (
                             <div className="flex items-center space-x-2">
                                 <Button.SM
-                                    className="text-foreground-muted hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20"
                                     onClick={() => setEditing(true)}
                                 >
                                     <HiPencil className="h-4 w-4" />
@@ -119,12 +128,11 @@ export default function Announcement({
                                         <HiCheck className="h-4 w-4" />
                                         <span>Save Changes</span>
                                     </Button.Primary>
-                                    <Button.SM
+                                    <Button.Light
                                         onClick={() => setEditing(false)}
-                                        className="text-foreground-muted hover:text-foreground bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600"
                                     >
                                         Cancel
-                                    </Button.SM>
+                                    </Button.Light>
                                 </div>
                             </div>
                         ) : (

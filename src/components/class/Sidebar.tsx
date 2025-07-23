@@ -1,14 +1,12 @@
 "use client";
 
 import { openModal } from "@/store/appSlice";
-import { HiCalendar, HiClipboard, HiDocumentReport, HiHome, HiPencil, HiUserGroup } from "react-icons/hi";
+import { HiBeaker, HiBookOpen, HiCalendar, HiClipboard, HiDocumentReport, HiHome, HiPencil, HiUserGroup, HiFolder } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import InviteCode from "./forms/InviteCode";
 import Button from "../ui/Button";
 import { RootState } from "@/store/store";
-import { useState, useEffect } from "react";
 import { Sidebar } from "../ui/Sidebar";
-import Input from "../ui/Input";
 
 export default function ClassSidebar({ teacher, classId }: { teacher: boolean, classId: string }) {
     const dispatch = useDispatch();
@@ -23,10 +21,28 @@ export default function ClassSidebar({ teacher, classId }: { teacher: boolean, c
         },
         {
             type: 'link' as const,
+            icon: <HiBookOpen className="size-5" />,
+            label: "Syllabus",
+            href: `/classes/${classId}/syllabus`,
+        },
+        {
+            type: 'link' as const,
             icon: <HiClipboard className="size-5" />,
             label: "Assignments",
             href: `/classes/${classId}/assignments`,
         },
+        {
+            type: 'link' as const,
+            icon: <HiFolder className="size-5" />,
+            label: "Files",
+            href: `/classes/${classId}/files`,
+        },
+        ...(teacher ? [{
+            type: 'link' as const,
+            icon: <HiBeaker className="size-5" />,
+            label: "Labs",
+            href: `/classes/${classId}/labs`,
+        }]: []),
         {
             type: 'link' as const,
             icon: <HiUserGroup className="size-5" />,

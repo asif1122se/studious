@@ -21,6 +21,7 @@ import type { RouterOutputs } from "@/utils/trpc";
 import Loading from "@/components/Loading";
 import GradingInfo from "@/components/class/GradingInfo";
 import EditableRubric, { RubricGrade, RubricCriteria } from "@/components/ui/EditableRubric";
+import FileSelector from "@/components/ui/FileSelector";
 
 interface Attachment {
     id: string;
@@ -346,24 +347,48 @@ export default function SubmissionPage({ params }: { params: { classId: string, 
                                 </div>
                             </div>
 
+                            {/* File selector for annotations */}
+                            {!submissionData.returned && (
+                                <div className="space-y-3">
+                                    <FileSelector
+                                        classId={params.classId}
+                                        onFilesSelected={(files) => {
+                                            const newFiles = files.map(file => ({
+                                                name: file.name,
+                                                type: file.type,
+                                                size: file.size,
+                                                data: file.data || '',
+                                            }));
+                                            
+                                            // Separate new files from existing files
+                                            const uploadFiles = newFiles.filter(file => !file.id);
+                                            const existingFileIds = newFiles.filter(file => file.id).map(file => file.id!);
+                                            
+                                            if (uploadFiles.length > 0 || existingFileIds.length > 0) {
+                                                updateSubmissionAsTeacher.mutate({
+                                                    assignmentId: params.assignmentId,
+                                                    classId: params.classId,
+                                                    submissionId: params.submissionId,
+                                                    newAttachments: uploadFiles,
+                                                    existingFileIds: existingFileIds.length > 0 ? existingFileIds : undefined,
+                                                });
+                                            }
+                                        }}
+                                        accept="*/*"
+                                        multiple={true}
+                                        maxSize={50 * 1024 * 1024} // 50MB
+                                        maxFiles={20}
+                                        showPreview={false}
+                                    />
+                                </div>
+                            )}
+
                             {/* Action buttons */}
                             <div className="flex flex-row justify-end space-x-2">
-                                <input 
-                                    type="file" 
-                                    className="hidden" 
-                                    ref={fileInput} 
-                                    onChange={handleFileUpload} 
-                                />
-
                                 {!submissionData.returned && (
-                                    <>
-                                        <Button.Light onClick={() => fileInput?.current?.click()}>
-                                            Add Annotation
-                                        </Button.Light>
-                                        <Button.Primary onClick={handleReturnToggle}>
-                                            Return
-                                        </Button.Primary>
-                                    </>
+                                    <Button.Primary onClick={handleReturnToggle}>
+                                        Return
+                                    </Button.Primary>
                                 )}
                                 {submissionData.returned && (
                                     <Button.Primary onClick={handleReturnToggle}>

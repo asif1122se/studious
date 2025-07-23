@@ -3,7 +3,7 @@ import Button from "../ui/Button";
 import { addAlert, setRefetch } from "@/store/appSlice";
 import { useDispatch } from "react-redux";
 import Badge from "../Badge";
-import { HiDocumentText, HiPencil, HiTrash, HiPaperClip, HiAnnotation, HiDocument, HiExternalLink, HiAcademicCap } from "react-icons/hi";
+import { HiDocumentText, HiPencil, HiTrash, HiPaperClip, HiAnnotation, HiDocument, HiExternalLink, HiAcademicCap, HiGlobe } from "react-icons/hi";
 import { emitAssignmentDelete } from "@/lib/socket";
 import { trpc } from "@/utils/trpc";
 import { AlertLevel } from "@/lib/alertLevel";
@@ -23,6 +23,7 @@ interface AssignmentProps {
     points?: number;
     type?: string;
     graded?: boolean;
+    inProgress?: boolean;
 }
 
 export default function Assignment({
@@ -37,6 +38,7 @@ export default function Assignment({
     points,
     type,
     graded,
+    inProgress,
 }: AssignmentProps) {
     const dispatch = useDispatch();
     const router = useRouter();
@@ -52,6 +54,16 @@ export default function Assignment({
         }
     });
 
+    const { mutate: publishDraft, isPending: isPublishing } = trpc.class.publishLabDraft.useMutation({
+        onSuccess: () => {
+            dispatch(addAlert({ level: AlertLevel.SUCCESS, remark: "Draft published successfully" }));
+            dispatch(setRefetch(true));
+        },
+        onError: (error) => {
+            dispatch(addAlert({ level: AlertLevel.ERROR, remark: error.message }));
+        }
+    });
+
     const handleViewAssignment = () => {
         router.push(`/classes/${classId}/assignment/${assignmentId}`);
     };
@@ -60,12 +72,27 @@ export default function Assignment({
         router.push(`/classes/${classId}/assignment/${assignmentId}/edit`);
     };
 
+    const handlePublishDraft = () => {
+        publishDraft({
+            classId,
+            draftId: assignmentId,
+        });
+    };
+
     return (
-        <div className="group relative bg-background border border-border rounded-lg p-4 hover:border-primary-300 transition-all duration-200 shadow-sm hover:shadow-md">
+        <div className={`group relative border rounded-lg p-4 transition-all duration-200 shadow-sm hover:shadow-md ${
+            inProgress 
+                ? 'bg-amber-50 border-amber-200 hover:border-amber-300' 
+                : 'bg-background border-border hover:border-primary-300'
+        }`}>
             <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-3 flex-1 min-w-0">
                     <div className="flex-shrink-0">
-                        <IconFrame className="p-2 size-8 bg-primary-50 text-primary-600 rounded-lg">
+                        <IconFrame className={`p-2 size-8 rounded-lg ${
+                            inProgress 
+                                ? 'bg-amber-100 text-amber-600' 
+                                : 'bg-primary-50 text-primary-600'
+                        }`}>
                             {getAssignmentIcon(type as "HOMEWORK" | "QUIZ" | "TEST" | "PROJECT" | "ESSAY" | "DISCUSSION" | "PRESENTATION" | "LAB" | "OTHER")}
                         </IconFrame>
                     </div>
@@ -82,9 +109,14 @@ export default function Assignment({
                         </div>
                         
                         <div className="flex flex-wrap items-center gap-2 text-xs text-foreground-muted mb-2">
-                            <Badge variant="primary">
+                            <Badge variant={inProgress ? "warning" : "primary"}>
                                 {formatAssignmentType(type || "OTHER")}
                             </Badge>
+                            {inProgress && (
+                                <Badge variant="warning">
+                                    Draft
+                                </Badge>
+                            )}
                             {graded && points !== undefined && (
                                 <Badge variant="success">
                                     {points} points
@@ -118,6 +150,15 @@ export default function Assignment({
                 
                 {isTeacher && (
                     <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {inProgress && (
+                            <Button.SM
+                                onClick={handlePublishDraft}
+                                isLoading={isPublishing}
+                                className="bg-green-500 hover:bg-green-600 text-white"
+                            >
+                                <HiGlobe />
+                            </Button.SM>
+                        )}
                         <Button.SM
                             onClick={handleEditAssignment}
                         >

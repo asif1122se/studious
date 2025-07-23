@@ -177,7 +177,7 @@ export default function CreateMarkscheme({ classId, existingMarkscheme, onSucces
 	};
 
 	return (
-		<div className="space-y-6 w-[35rem]">
+		<div className="space-y-6 w-[35rem] max-w-full">
 			{/* Template Selection */}
 			{!existingMarkscheme && (
 				<div>
@@ -185,7 +185,7 @@ export default function CreateMarkscheme({ classId, existingMarkscheme, onSucces
 						<span className="text-sm font-semibold text-foreground-secondary">Templates</span>
 					</div>
 					
-					<div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-64 overflow-y-auto">
 						{markschemeTemplates.map((template) => (
 							<Card
 								key={template.id}
@@ -230,7 +230,7 @@ export default function CreateMarkscheme({ classId, existingMarkscheme, onSucces
 				</Button.Light>
 				<Button.Primary
 					onClick={handleSave}
-					disabled={isPending}
+					isLoading={isPending}
 				>
 					{isPending ? 'Saving...' : (existingMarkscheme ? 'Update Markscheme' : 'Create Markscheme')}
 				</Button.Primary>

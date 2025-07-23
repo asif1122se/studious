@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { BiChevronDown, BiChevronRight } from "react-icons/bi";
 import React from "react";
 import Button from "./Button";
@@ -9,32 +9,16 @@ import Card from "./Card";
 
 interface ShelfProps {
     label: React.ReactNode | string;
-    content: React.ReactNode;
+    content?: React.ReactNode;
     children: React.ReactNode;
 }
 
 const Shelf: React.FC<ShelfProps> = ({ label, content, children }) => {
     const [opened, setOpened] = useState(false);
-    const [height, setHeight] = useState(0);
-    const [opacity, setOpacity] = useState(0);
-    const contentRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (opened) {
-            if (contentRef.current) {
-                setHeight(contentRef.current.scrollHeight);
-                setTimeout(() => setOpacity(1), 10);
-            }
-        } else {
-            setOpacity(0);
-            setTimeout(() => setHeight(0), 200);
-        }
-    }, [opened]);
-
     const hasChildren = React.Children.count(children) > 0;
 
     return (
-        <Card className="flex flex-col space-y-1 select-none px-3 py-0">
+        <Card className="flex flex-col space-y-1 select-none px-3 py-0 h-full">
             <div className="flex justify-between py-1">
                 <div 
                     className="flex flex-row space-x-4 items-center cursor-pointer" 
@@ -50,23 +34,17 @@ const Shelf: React.FC<ShelfProps> = ({ label, content, children }) => {
                         </a>
                     </div>
                 </div>
-                {content}
+                {content && content}
             </div>
-            <div 
-                className="overflow-hidden transition-all duration-300 ease-in-out" 
-                style={{ 
-                    height: `${height}px`,
-                    opacity: opacity
-                }}
-            >
-                <div ref={contentRef} className="ml-8 pb-5">
+            {opened && (
+                <div className="flex-1 overflow-y-auto ml-8 pb-5">
                     {hasChildren ? children : (
                         <div className="py-2">
                             <Empty message="No items available" />
                         </div>
                     )}
                 </div>
-            </div>
+            )}
         </Card>
     );
 };

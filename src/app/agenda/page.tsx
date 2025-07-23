@@ -6,7 +6,7 @@ import Calendar from "@/components/ui/Calendar";
 import WeekNavigator from "@/components/ui/WeekNavigator";
 import { splitMultiDayEvent } from "@/lib/splitMultiDayEvent";
 import { detectOverlaps } from "@/lib/eventOverlap";
-import { openModal, setRefetch } from "@/store/appSlice";
+import { openModal } from "@/store/appSlice";
 import { useEffect, useRef, useState } from "react";
 import { HiCalendar, HiExclamation, HiCheckCircle, HiClock as HiTime } from "react-icons/hi";
 import { useDispatch } from "react-redux";
@@ -49,7 +49,7 @@ export default function Agenda() {
         if (eventComponent && eventComponent.current) eventComponent.current.scrollTop = 80 * 8;
     }, []);
 
-    const { data: agendaData } = trpc.agenda.get.useQuery(
+    const { data: agendaData, refetch: refetchAgenda } = trpc.agenda.get.useQuery(
         {
             weekStart: weekDays[0]?.toISOString() || new Date().toISOString(),
         },
@@ -68,7 +68,6 @@ export default function Agenda() {
                 class: agendaData.events.class.flatMap((event: ClassEvent) => splitMultiDayEvent(event))
             };
             setEvents(processedEvents);
-            dispatch(setRefetch(false));
         }
     }, [agendaData, dispatch]);
 
@@ -139,11 +138,18 @@ export default function Agenda() {
                 />
             )}
             
-            <div className="flex flex-row ml-12 pt-5 space-x-6 flex-1 overflow-y-auto">
+            {/* Mobile Calendar */}
+            <div className="lg:hidden px-4 pt-4">
+                <Card className="p-2">
+                    <Calendar onChange={handleCalendarChange} />
+                </Card>
+            </div>
+            
+            <div className="flex flex-col lg:flex-row lg:ml-12 pt-5 lg:space-x-6 flex-1 overflow-y-auto">
                 {/* Left sidebar - Due Today & Upcoming */}
-                <div className="flex flex-col w-[20rem] shrink-0 space-y-4">
+                <div className="flex flex-col w-full lg:w-80 xl:w-96 shrink-0 space-y-4 px-4 lg:px-0 mb-6 lg:mb-0">
                     {/* Calendar */}
-                    <Card className="p-2">
+                    <Card className="p-2 hidden lg:block">
                         <Calendar onChange={handleCalendarChange} />
                     </Card>
                     {/* Due Today Section */}
@@ -233,34 +239,17 @@ export default function Agenda() {
                 </div>
 
                 {/* Main calendar area */}
-                <div className="flex-1 flex flex-col space-y-3 px-12 overflow-x-hidden">
-                    <div className="flex flex-row justify-between items-center">
+                <div className="flex-1 flex flex-col space-y-3 px-4 lg:px-12 overflow-x-hidden">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
                         <Button.Primary
                             onClick={() => {
                                 dispatch(openModal({ body: <CreateEvent selectedDay={weekDays[selectedDay]} onCreate={(event) => {
-                                    if (!events) {
-                                        return;
-                                    }
-
-                                    if (event.class) {
-                                        setEvents({
-                                            ...events,
-                                            class: [...events.class, event]
-                                        });
-                                    } else {
-                                        setEvents({
-                                            personal: [
-                                                ...(events.personal || []),
-                                                event
-                                            ],
-                                            class: []
-                                        });
-                                    }
+                                    refetchAgenda();
                                 }} />, header: 'Add event' }));
                             }}
                         >Add Event</Button.Primary>
                         
-                        <div className="text-sm text-foreground-muted">
+                        <div className="text-sm text-foreground-muted text-center sm:text-left">
                             {weekDays[selectedDay] && (
                                 <span>
                                     {format(weekDays[selectedDay], 'EEEE, MMMM d, yyyy')}
@@ -273,27 +262,27 @@ export default function Agenda() {
                         <div className="flex flex-row w-full pl-12 min-w-max">
                             {weekDays.map((day, index) => <span key={index}
                                 onClick={() => setSelectedDay(index)}
-                                className={`hover:underline flex-shrink-0 flex-grow-0 text-sm font-semibold text-center w-[9rem] ${index == selectedDay ? 'text-primary-500' : "text-gray-500 dark:text-gray-300"}`}>{WEEKDAY_LABELS[index]} <span className={`${index == selectedDay ? 'text-white px-2 rounded-full bg-primary-500' : "text-gray-500 dark:text-gray-300"}`}>{getDate(day)}</span></span>
+                                className={`hover:underline flex-shrink-0 flex-grow-0 text-sm font-semibold text-center w-20 sm:w-24 md:w-28 lg:w-36 ${index == selectedDay ? 'text-primary-500' : "text-gray-500 dark:text-gray-300"}`}>{WEEKDAY_LABELS[index]} <span className={`${index == selectedDay ? 'text-white px-2 rounded-full bg-primary-500' : "text-gray-500 dark:text-gray-300"}`}>{getDate(day)}</span></span>
                             )}
                         </div>
 
-                        <div className="flex flex-row overflow-y-scroll h-[50rem] relative min-w-max" ref={eventComponent}>
+                        <div className="flex flex-row overflow-y-scroll h-[40rem] sm:h-[45rem] lg:h-[50rem] relative min-w-max" ref={eventComponent}>
                             {
-                                Array.from({ length: 24 }, (_, i) => (<div key={i} className="absolute w-[2rem] text-foreground-muted font-bold border-border dark:border-border-dark flex-shrink-0 flex-grow-0" style={{
+                                Array.from({ length: 24 }, (_, i) => (<div key={i} className="absolute w-8 sm:w-10 text-foreground-muted font-bold border-border dark:border-border-dark flex-shrink-0 flex-grow-0 text-xs sm:text-sm" style={{
                                     height: spacingPerHour,
                                         top: spacingPerHour * i
                                 }}>{i.toString().padStart(2, "0")}:00</div>))
                             }
-                            <div className="relative w-full flex flex-row ml-12">
+                            <div className="relative w-full flex flex-row ml-8 sm:ml-10 lg:ml-12">
                                 {
-                                    Array.from({ length: 24 }, (_, i) => (<div key={i} className="absolute w-[63rem] border-b border-border dark:border-border-dark flex-shrink-0 flex-grow-0" style={{
+                                    Array.from({ length: 24 }, (_, i) => (<div key={i} className="absolute w-full border-b border-border dark:border-border-dark flex-shrink-0 flex-grow-0" style={{
                                         height: spacingPerHour,
                                         top: spacingPerHour * i
                                     }}></div>))
                                 }
                                 {
                                     weekDays.map((day, index) => (
-                                        <div key={index} className="flex flex-col w-[9rem] shrink-0">
+                                        <div key={index} className="flex flex-col w-20 sm:w-24 md:w-28 lg:w-36 shrink-0">
                                             <div className="relative items-center">
                                                 {
                                                     Array.from({ length: 24 }, (_, i) => (<div key={i} className="w-full border-b border-x border-border dark:border-border-dark flex-shrink-0 flex-grow-0" style={{
@@ -327,25 +316,7 @@ export default function Agenda() {
                                                                     location={originalEvent.location ? originalEvent.location : 'No location specified'}
                                                                     remarks={originalEvent.remarks ? originalEvent.remarks : 'No remarks were left'}
                                                                     eventName={originalEvent.name ? originalEvent.name : 'Untitled event'}
-                                                                    onUpdate={(event) => {
-                                                                        if (isPersonal) {
-                                                                            setEvents({
-                                                                                ...events,
-                                                                                personal: [
-                                                                                    ...events.personal.filter((e) => e.id !== event.id),
-                                                                                    event
-                                                                                ],
-                                                                            });
-                                                                        } else {
-                                                                            setEvents({
-                                                                                ...events,  
-                                                                                class: [
-                                                                                    ...events.class.filter((e) => e.id !== event.id),
-                                                                                    event
-                                                                                ]
-                                                                            });
-                                                                        }
-                                                                    }}
+                                                                    onUpdate={() => refetchAgenda()}
                                                                     onDelete={() => {
                                                                         if (isPersonal) {
                                                                             setEvents({

@@ -1,3 +1,0 @@
-- UX : seeing events changing after being changed (refetch)
-- make agenda responsive + add a mobile version
-- consider fixing email verification

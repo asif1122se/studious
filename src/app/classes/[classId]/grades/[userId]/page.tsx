@@ -218,7 +218,7 @@ export default function AllGradesPage({ params }: { params: { classId: string, u
                         <div className="flex justify-end">
                             <Button.Primary
                                 onClick={saveChanges}
-                                disabled={updateGrade.isPending}
+                                isLoading={updateGrade.isPending}
                             >
                                 {updateGrade.isPending ? 'Saving...' : 'Save Changes'}
                             </Button.Primary>

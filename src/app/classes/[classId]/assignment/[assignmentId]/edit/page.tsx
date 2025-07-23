@@ -28,11 +28,14 @@ import AttachEventToAssignment from "@/components/class/forms/AttachEventToAssig
 import AttachedEvent from "@/components/class/AttachedEvent";
 import GradingInfo from "@/components/class/GradingInfo";
 import AttachGradingToAssignment from "@/components/class/forms/AttachGradingToAssignment";
+import FileSelector from "@/components/ui/FileSelector";
 import { MdChecklist } from "react-icons/md";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 type Assignment = RouterOutput["assignment"]["get"];
 type Attachment = RouterOutput["assignment"]["get"]["attachments"][number];
+
+// @todo: get rid of this stupid refetch stuff
 
 type FileData = {
     id: string;
@@ -46,12 +49,12 @@ type AssignmentData = Assignment & {
     refetch: boolean;
     newAttachments: FileData[];
     removedAttachments: { id: string; }[];
+    inProgress?: boolean;
 };
 
 export default function AssignmentList({ params }: { params: { classId: string, assignmentId: string } }) {
     const [assignmentData, setAssignmentData] = useState<AssignmentData>({} as AssignmentData);
     const appState = useSelector((state: RootState) => state.app);
-    const [isSaving, setIsSaving] = useState(false);
     const [isSaved, setIsSaved] = useState(true);
     const router = useRouter();
 
@@ -121,14 +124,14 @@ export default function AssignmentList({ params }: { params: { classId: string, 
         saveChanges();
     }, [assignmentData]);
 
+    // @todo: fix the saving state
     useEffect(() => {
         setIsSaved(false);
     }, [assignmentData]);
 
-    const updateAssignment = trpc.assignment.update.useMutation<RouterOutputs['assignment']['update']>({
+    const {mutate: updateAssignment, isPending} = trpc.assignment.update.useMutation<RouterOutputs['assignment']['update']>({
         onSuccess: (data) => {
             dispatch(setRefetch(true));
-            setIsSaving(false);
             setIsSaved(true);
             // Reset refetch flag and clear attachment arrays after successful save
             setAssignmentData(prev => ({
@@ -144,15 +147,28 @@ export default function AssignmentList({ params }: { params: { classId: string, 
                 level: AlertLevel.ERROR,
                 remark: error.message || 'Failed to update assignment',
             }));
-            setIsSaving(false);
         }
     });
+
+    console.log(assignmentData.newAttachments);
 
     const saveChanges = () => {
         if (!assignmentData) return;
         
-        setIsSaving(true);
-        updateAssignment.mutate({
+        // Separate new files from existing files
+        const newFiles = assignmentData.newAttachments?.filter(file => !file.id) || [];
+        const existingFileIds = assignmentData.newAttachments?.filter(file => file.id).map(file => file.id!) || [];
+        
+        const removedAttachments = assignmentData.removedAttachments?.map(a => a.id) || [];
+
+        setAssignmentData(prev => ({
+            ...prev,
+            refetch: false,
+            newAttachments: [],
+            removedAttachments: []
+        }));
+
+        updateAssignment({
             classId: params.classId,
             id: params.assignmentId,
             title: assignmentData.title,
@@ -161,15 +177,17 @@ export default function AssignmentList({ params }: { params: { classId: string, 
             maxGrade: assignmentData.maxGrade ?? undefined,
             graded: assignmentData.graded,
             weight: assignmentData.weight ?? undefined,
-            type: assignmentData.type as "HOMEWORK" | "QUIZ" | "TEST" | "PROJECT" | "ESSAY" | "DISCUSSION" | "PRESENTATION" | "LAB" | "OTHER",
+            type: assignmentData.type,
             sectionId: assignmentData.section?.id || null,
-            files: assignmentData.newAttachments?.map(file => ({
+            inProgress: assignmentData.inProgress,
+            files: newFiles.map(file => ({
                 name: file.name,
                 type: file.type,
                 size: file.size,
                 data: file.data
-            })) || [],
-            removedAttachments: assignmentData.removedAttachments?.map(a => a.id) || [],
+            })),
+            existingFileIds: existingFileIds.length > 0 ? existingFileIds : undefined,
+            removedAttachments: removedAttachments,
         });
     };
 
@@ -285,6 +303,18 @@ export default function AssignmentList({ params }: { params: { classId: string, 
                                     />
                                     <label htmlFor="graded" className="text-sm font-semibold">Graded Assignment</label>
                                 </div>
+                                <div className="flex items-center space-x-3">
+                                    <Checkbox 
+                                        checked={assignmentData.inProgress || false} 
+                                        onChange={() => setAssignmentData({ ...assignmentData, inProgress: !assignmentData.inProgress})} 
+                                    />
+                                    <label htmlFor="inProgress" className="text-sm font-semibold">Save as Draft</label>
+                                </div>
+                                {(assignmentData.inProgress || false) && (
+                                    <div className="text-sm text-foreground-secondary">
+                                        Draft assignments are saved to your Labs page and won't be visible to students until published.
+                                    </div>
+                                )}
                                         
                                 {assignmentData.graded && (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -334,9 +364,9 @@ export default function AssignmentList({ params }: { params: { classId: string, 
                                 <div className="flex justify-end">
                                     <Button.Primary 
                                         onClick={saveChanges}
-                                        disabled={isSaving}
+                                        isLoading={isPending}
                                     >
-                                        {isSaving ? "Saving..." : "Save Changes"}
+                                        {isPending ? "Saving..." : assignmentData.inProgress ? "Save as Draft" : "Save Changes"}
                                     </Button.Primary>
                                 </div>
                             )}
@@ -373,46 +403,33 @@ export default function AssignmentList({ params }: { params: { classId: string, 
                                 />
                             ))}
                             
-                            <div className="flex flex-col space-y-3">
-                                <input 
-                                    type="file" 
-                                    className="hidden" 
-                                    ref={fileInput} 
-                                    onChange={(e) => {
-                                        if (!e.target.files || !e.target.files[0]) return;
-
-                                        fileToBase64(e.target.files[0]).then(base64 => {
-                                            if (!e.target.files || !e.target.files[0]) return;
-                                            if (!base64) return;
-
-                                            setAssignmentData({
-                                                ...assignmentData,
-                                                refetch: true,
-                                                newAttachments: [
-                                                    ...(assignmentData.newAttachments || []),
-                                                    {
-                                                        id: v4(),
-                                                        name: e.target.files[0].name,
-                                                        type: e.target.files[0].type,
-                                                        size: e.target.files[0].size,
-                                                        data: base64.toString(),
-                                                    },
-                                                ]
-                                            });
-                                            
-                                            e.target.files = null;
-                                            e.target.value = '';
-                                        });
-                                    }} 
-                                />
-                                
-                                <Button.Primary 
-                                    onClick={() => fileInput?.current?.click()}
-                                    className="w-full"
-                                >
-                                    Attach File
-                                </Button.Primary>
-                            </div>
+                            <FileSelector
+                                classId={params.classId}
+                                onFilesSelected={(files) => {
+                                    const newFiles = files.map(file => ({
+                                        id: file.id,
+                                        name: file.name,
+                                        type: file.type,
+                                        size: file.size,
+                                        data: file.data || '',
+                                    }));
+                                    setAssignmentData({
+                                        ...assignmentData,
+                                        refetch: true,
+                                        attachments: [
+                                            ...(assignmentData.attachments || []),
+                                            ...newFiles.map(file => ({...file, loading: true })),
+                                        ],
+                                        newAttachments: newFiles,
+                                    });
+                                }}
+                                selectedFiles={assignmentData.newAttachments || []}
+                                accept="*/*"
+                                multiple={true}
+                                maxSize={50 * 1024 * 1024} // 50MB
+                                maxFiles={20}
+                                showPreview={true}
+                            />
                         </Card>
 
                         <Card className="flex flex-col space-y-4 mt-4">

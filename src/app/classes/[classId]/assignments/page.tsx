@@ -8,7 +8,7 @@ import Loading from "@/components/Loading";
 import CreateAssignment from "@/components/class/forms/CreateAssignment";
 import Empty from "@/components/ui/Empty";
 import CreateSection from "@/components/class/forms/CreateSection";
-import { HiClipboardList, HiFilter, HiPlus, HiSearch } from "react-icons/hi";
+import { HiClipboardList, HiFilter, HiPlus, HiSearch, HiUserGroup } from "react-icons/hi";
 import { initializeSocket, joinClass, leaveClass } from "@/lib/socket";
 import { trpc } from "@/utils/trpc";
 import type { RouterOutputs } from "@/utils/trpc";
@@ -19,6 +19,8 @@ import Section from "@/components/class/Section";
 import Input from "@/components/ui/Input";
 import Card from "@/components/ui/Card";
 import Dropdown from "@/components/ui/Dropdown";
+import Skeleton, { SkeletonText } from "@/components/ui/Skeleton";
+import Tabs, { Tab } from "@/components/ui/Tabs";
 
 type Section = {
     id: string;
@@ -32,6 +34,75 @@ type FilterState = {
 };
 
 type AssignmentType = RouterOutputs['class']['get']['class']['assignments'][number];
+
+// Skeleton component for assignment items
+const AssignmentSkeleton = () => (
+    <Card className="p-4">
+        <div className="flex items-center justify-between">
+            <div className="flex-1">
+                <SkeletonText lines={2} className="mb-2" />
+                <div className="flex items-center space-x-4">
+                    <Skeleton width="4rem" height="1.5rem" />
+                    <Skeleton width="6rem" height="1.5rem" />
+                    <Skeleton width="5rem" height="1.5rem" />
+                </div>
+            </div>
+            <div className="flex items-center space-x-2">
+                <Skeleton width="2rem" height="2rem" />
+                <Skeleton width="2rem" height="2rem" />
+            </div>
+        </div>
+    </Card>
+);
+
+// Skeleton component for section headers
+const SectionSkeleton = () => (
+    <div className="space-y-3">
+        <div className="flex items-center space-x-2">
+            <Skeleton width="8rem" height="1.5rem" />
+            <Skeleton width="3rem" height="1.5rem" />
+        </div>
+        <div className="space-y-2">
+            <AssignmentSkeleton />
+            <AssignmentSkeleton />
+        </div>
+    </div>
+);
+
+// Skeleton for the entire assignments page
+const AssignmentsPageSkeleton = () => (
+    <div className="flex flex-col space-y-6">
+        {/* Title skeleton */}
+        <Skeleton width="8rem" height="2rem" />
+        
+        {/* Tabs skeleton */}
+        <div className="flex flex-row space-x-2 border-b border-border mb-2">
+            {Array.from({ length: 5 }).map((_, index) => (
+                <Skeleton key={index} width="4rem" height="2.5rem" />
+            ))}
+        </div>
+
+        {/* Search and filters skeleton */}
+        <div className="flex flex-row justify-between items-center mb-5">
+            <div className="flex flex-row items-center space-x-4">
+                <Skeleton width="16rem" height="2.5rem" />
+            </div>
+            <div className="flex flex-row space-x-2">
+                <Skeleton width="5rem" height="2.5rem" />
+                <Skeleton width="6rem" height="2.5rem" />
+                <Skeleton width="7rem" height="2.5rem" />
+            </div>
+        </div>
+
+        {/* Assignment list skeleton */}
+        <div className="flex flex-col space-y-3 p-3">
+            <SectionSkeleton />
+            <AssignmentSkeleton />
+            <AssignmentSkeleton />
+            <AssignmentSkeleton />
+        </div>
+    </div>
+);
 
 export default function AssignmentListPage({ params }: { params: { classId: string } }) {
     const classId = params.classId;
@@ -47,7 +118,7 @@ export default function AssignmentListPage({ params }: { params: { classId: stri
         dueDate: 'all'
     });
     const [showFilters, setShowFilters] = useState(false);
-    const [activeTab, setActiveTab] = useState<'all'|'pending'|'submitted'|'graded'|'overdue'>('all');
+    const [activeTab, setActiveTab] = useState(0);
 
     const { data: classData, isLoading } = trpc.class.get.useQuery({ classId });
 
@@ -210,10 +281,9 @@ export default function AssignmentListPage({ params }: { params: { classId: stri
         });
     };
 
+    // Show skeleton loading instead of spinner
     if (isLoading || !assignments) {
-        return <div className="flex justify-center items-center h-full w-full">
-            <Loading />
-        </div>
+        return <AssignmentsPageSkeleton />;
     }
 
     // --- Summary counts ---
@@ -225,13 +295,21 @@ export default function AssignmentListPage({ params }: { params: { classId: stri
     };
 
     // --- Tab state ---
-    const tabFilters = {
-        all: () => true,
-        pending: (a: AssignmentType) => !a.submitted && !a.late && !a.returned,
-        submitted: (a: AssignmentType) => a.submitted && !a.returned,
-        graded: (a: AssignmentType) => a.returned,
-        overdue: (a: AssignmentType) => a.late && !a.submitted,
-    };
+    const tabFilters = [
+        () => true, // all
+        (a: AssignmentType) => !a.submitted && !a.late && !a.returned, // pending
+        (a: AssignmentType) => a.submitted && !a.returned, // submitted
+        (a: AssignmentType) => a.returned, // graded
+        (a: AssignmentType) => a.late && !a.submitted, // overdue
+    ];
+
+    const tabs: Tab[] = [
+        { name: 'All', count: assignments.length },
+        { name: 'Pending', count: summary.pending },
+        { name: 'Submitted', count: summary.submitted },
+        { name: 'Graded', count: summary.graded },
+        { name: 'Overdue', count: summary.overdue },
+    ];
 
     const filteredAssignments = filterAssignments(assignments).filter(tabFilters[activeTab]);
     const filteredSections = filterSections(sections);
@@ -264,39 +342,33 @@ export default function AssignmentListPage({ params }: { params: { classId: stri
             </div> */}
 
             {/* --- Tabs --- */}
-            <div className="flex flex-row space-x-2 border-b border-border mb-2">
-                {['all','pending','submitted','graded','overdue'].map(tab => (
-                    <button
-                        key={tab}
-                        className={`px-4 py-2 font-medium capitalize border-b-2 transition-colors duration-200 ${activeTab === tab ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-primary-500'}`}
-                        onClick={() => setActiveTab(tab as typeof activeTab)}
-                    >
-                        {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                    </button>
-                ))}
-            </div>
+            <Tabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+            />
 
             {/* --- Search and Filters --- */}
-            <div className="flex flex-row justify-between items-center mb-5">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-5">
                 <div className="flex flex-row items-center space-x-4">
-                    <div className="relative">
+                    <div className="relative flex-1 sm:flex-none">
                         <Input.Text
                             placeholder="Search assignments..."
                             value={filters.search}
                             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                            className="w-64 pl-10"
+                            className="w-full sm:w-64 pl-10"
                         />
                         <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-foreground-muted" />
                     </div>
                 </div>
-                <div className="flex flex-row space-x-2">
+                <div className="flex flex-row flex-wrap gap-2">
                     <div className="relative">
                         <Button.Light
                             onClick={() => setShowFilters(!showFilters)}
                             className="flex items-center space-x-2"
                         >
                             <HiFilter className="w-4 h-4" />
-                            <span>Filter</span>
+                            <span className="hidden sm:inline">Filter</span>
                         </Button.Light>
                         {showFilters && (
                             <div className="absolute right-0 mt-2 w-64 bg-background border border-border rounded-lg shadow-lg p-4 z-10">
@@ -338,22 +410,23 @@ export default function AssignmentListPage({ params }: { params: { classId: stri
                                 onClick={() => dispatch(openModal({body: <CreateSection classId={classId} />, header: 'Create Section'}))}
                                 className="flex flex-row items-center gap-2"
                             >
-                                <HiPlus className="w-4 h-4" />
-                                Section
+                                <HiUserGroup className="w-4 h-4" />
+                                <span className="hidden sm:inline">Section</span>
                             </Button.Light>
                             <Button.Primary
                                 onClick={() => dispatch(openModal({body: <CreateAssignment classId={classId} sections={sections} />, header: 'Create Assignment'}))}
                                 className="flex flex-row items-center gap-2"
                             >
                                 <HiPlus className="w-4 h-4" />
-                                Assignment</Button.Primary>
+                                <span className="hidden sm:inline">Assignment</span>
+                            </Button.Primary>
                         </>
                     )}
                 </div>
             </div>
 
             {/* --- Assignment List --- */}
-            <div className="flex flex-col space-y-3 p-3">
+            <div className="flex flex-col space-y-3">
                 {filteredAssignments.length === 0 && filteredSections.length ===0 && (
                     <Empty 
                         icon={HiClipboardList}
@@ -394,6 +467,7 @@ export default function AssignmentListPage({ params }: { params: { classId: stri
                         points={assignment.maxGrade ?? undefined}
                         type={assignment.type}
                         graded={assignment.graded}
+                        inProgress={assignment.inProgress}
                     />
                 ))}
             </div>

@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { addAlert } from "@/store/appSlice";
+import { addAlert, closeModal } from "@/store/appSlice";
 import { AlertLevel } from "@/lib/alertLevel";
 import { RouterOutputs, trpc } from "@/utils/trpc";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import ColorPicker from "@/components/ui/ColorPicker";
 import { format, parseISO } from "date-fns";
+import { isPending } from "@reduxjs/toolkit";
 
 interface UpdateClassEventProps {
   id: string;
-  onUpdate?: (event: RouterOutputs['agenda']['get']['events']['class'][number]) => void;
+  onUpdate?: (event?: RouterOutputs['agenda']['get']['events']['class'][number] | RouterOutputs['agenda']['get']['events']['personal'][number]) => void;
 }
 
 export default function UpdateClassEvent({ id, onUpdate }: UpdateClassEventProps) {
@@ -44,7 +45,7 @@ export default function UpdateClassEvent({ id, onUpdate }: UpdateClassEventProps
     }
   }, [event]);
 
-  const updateEvent = trpc.event.update.useMutation({
+  const {mutate: updateEvent, isPending} = trpc.event.update.useMutation({
     onSuccess: (data) => {
       dispatch(addAlert({ level: AlertLevel.SUCCESS, remark: "Event updated successfully" }));
       onUpdate && onUpdate(data.event as RouterOutputs['agenda']['get']['events']['class'][number]);
@@ -56,14 +57,15 @@ export default function UpdateClassEvent({ id, onUpdate }: UpdateClassEventProps
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateEvent.mutate({
+    updateEvent({
       id,
       data: eventData,
     });
+    dispatch(closeModal());
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 w-[24rem]">
+    <form onSubmit={handleSubmit} className="space-y-4 w-[24rem] max-w-full">
       <Input.Text
         label="Name"
         value={eventData.name}
@@ -104,7 +106,9 @@ export default function UpdateClassEvent({ id, onUpdate }: UpdateClassEventProps
       />
       <div className="flex justify-end space-x-2">
         <Button.Light>Cancel</Button.Light>
-        <Button.Primary type="submit">Update Event</Button.Primary>
+        <Button.Primary
+        isLoading={isPending}
+        type="submit">{isPending ? 'Updating event...' : 'Update event'}</Button.Primary>
       </div>
     </form>
   );

@@ -127,7 +127,8 @@ export default function AttachEventToAssignment({ assignmentId, onEventAttached,
         </Button.Light>
         <Button.Primary
           onClick={handleAttachToEvent}
-          disabled={!selectedEventId || attachToEvent.isPending}
+          isLoading={attachToEvent.isPending}
+          disabled={!selectedEventId}
         >
           {attachToEvent.isPending ? "Attaching..." : "Attach to Event"}
         </Button.Primary>

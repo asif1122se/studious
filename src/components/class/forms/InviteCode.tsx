@@ -36,7 +36,7 @@ export default function InviteCode({ classId }: { classId: string }) {
     }, [inviteCodeData]);
 
     return (
-        <div className="flex flex-col w-[30rem]">
+        <div className="flex flex-col w-[30rem] max-w-full">
             <div className="flex flex-col space-y-3">
                 <span className="text-foreground-muted text-sm">Class code</span>
                 <span 
@@ -55,7 +55,7 @@ export default function InviteCode({ classId }: { classId: string }) {
                 <div className="mt-4">
                     <Button.Primary 
                         onClick={() => createInviteCode.mutate({ classId })}
-                        disabled={createInviteCode.isPending}
+                        isLoading={createInviteCode.isPending}
                     >
                         {createInviteCode.isPending ? 'Regenerating...' : 'Regenerate'}
                     </Button.Primary>

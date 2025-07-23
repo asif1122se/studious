@@ -15,6 +15,7 @@ import { initializeSocket, joinClass, leaveClass, emitMemberUpdate, emitMemberDe
 import { trpc } from "@/utils/trpc";
 import { RouterOutputs } from "@/utils/trpc";
 import Card from "@/components/ui/Card";
+import Skeleton, { SkeletonAvatar } from "@/components/ui/Skeleton";
 
 type Member = {
     id: string;
@@ -23,6 +24,51 @@ type Member = {
 };
 
 type MemberFilter = 'all' | 'teachers' | 'students';
+
+// Skeleton component for member cards
+const MemberCardSkeleton = () => (
+    <div className="flex flex-row justify-between items-center px-3 py-1">
+        <div className="flex flex-row items-center space-x-3">
+            <SkeletonAvatar size="md" />
+            <div className="flex flex-col space-y-1">
+                <Skeleton width="8rem" height="1rem" />
+                <Skeleton width="4rem" height="0.75rem" />
+            </div>
+        </div>
+        <div className="flex flex-row items-center space-x-2">
+            <Skeleton width="6rem" height="2rem" />
+            <Skeleton width="2rem" height="2rem" />
+        </div>
+    </div>
+);
+
+// Skeleton for the entire members page
+const MembersPageSkeleton = () => (
+    <div className="flex flex-col w-full">
+        <div className="flex flex-col space-y-6">
+            {/* Header skeleton */}
+            <div className="flex flex-col space-y-1">
+                <Skeleton width="6rem" height="1.5rem" />
+                <Skeleton width="8rem" height="1rem" />
+            </div>
+
+            {/* Search and filter skeleton */}
+            <div className="flex flex-row space-x-4">
+                <div className="flex-1 relative">
+                    <Skeleton width="100%" height="2.5rem" />
+                </div>
+                <Skeleton width="8rem" height="2.5rem" />
+            </div>
+
+            {/* Members list skeleton */}
+            <Card className="flex flex-col space-y-4 p-4">
+                {Array.from({ length: 6 }).map((_, index) => (
+                    <MemberCardSkeleton key={index} />
+                ))}
+            </Card>
+        </div>
+    </div>
+);
 
 const MemberCard = ({ member, isCurrentUser, isTeacher, classId, onUpdate }: {
     member: Member;
@@ -184,12 +230,9 @@ export default function Members({ params }: { params: { classId: string } }) {
         return result;
     }, [members, filter, searchQuery]);
 
+    // Show skeleton loading instead of spinner
     if (isLoading || !members) {
-        return (
-            <div className="h-full w-full flex justify-center items-center">
-                <Loading />
-            </div>
-        );
+        return <MembersPageSkeleton />;
     }
 
     return (

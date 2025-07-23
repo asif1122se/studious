@@ -296,7 +296,7 @@ export default function AttachGradingToAssignment({
 				</Button.Light>
 				<Button.Primary
 					onClick={handleSave}
-					disabled={isPending}
+					isLoading={isPending}
 				>
 					{isPending ? 'Saving...' : 'Attach'}
 				</Button.Primary>

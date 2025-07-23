@@ -12,6 +12,7 @@ import Input from "@/components/ui/Input";
 import Card from "@/components/ui/Card";
 import { HiAcademicCap, HiMail, HiArrowLeft, HiCheckCircle } from "react-icons/hi";
 import Link from "next/link";
+import { getErrorMessage, getFieldErrors } from "@/utils/errorHandler";
 
 export default function Signup() {
   const [formData, setFormData] = useState<RouterInputs['auth']['register']>({
