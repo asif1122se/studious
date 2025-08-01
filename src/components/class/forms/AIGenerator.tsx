@@ -13,6 +13,7 @@ import Input from "@/components/ui/Input";
 import Textbox from "@/components/ui/Textbox";
 import Card from "@/components/ui/Card";
 import IconFrame from "@/components/ui/IconFrame";
+import { validate } from "@/lib/validation";
 
 type LabDraftType = 'LAB' | 'HOMEWORK' | 'QUIZ' | 'TEST' | 'PROJECT' | 'ESSAY' | 'DISCUSSION' | 'PRESENTATION' | 'OTHER';
 
@@ -37,6 +38,12 @@ export default function AIGenerator({ classId, type, onSuccess }: AIGeneratorPro
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     
+    const REQUIRED_KEYS = [
+        'topic',
+        'subject',
+        'gradeLevel',
+    ];
+
     const createLabDraft = trpc.class.createLabDraft.useMutation();
     const [generatedContent, setGeneratedContent] = useState('');
     const [prompt, setPrompt] = useState<GenerationPrompt>({
@@ -94,12 +101,13 @@ Make it engaging, educational, and appropriate for the specified grade level and
     };
 
     const handleGenerate = async () => {
-        if (!prompt.topic.trim() || !prompt.subject.trim() || !prompt.gradeLevel.trim()) {
+        const validated = validate(REQUIRED_KEYS, { prompt });
+
+        if (!validated.valid) {
             dispatch(addAlert({
-                level: AlertLevel.ERROR,
-                message: 'Please fill in the required fields: Topic, Subject, and Grade Level.'
-            }));
-            return;
+                level: AlertLevel.WARNING,
+                remark: validated.remark,
+            }))
         }
 
         setIsGenerating(true);
@@ -220,8 +228,8 @@ ${prompt.additionalContext ? `## Additional Notes\n${prompt.additionalContext}` 
         <div className="w-full max-w-4xl mx-auto space-y-6 max-h-[80vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center space-x-3 mb-6">
-                <IconFrame>
-                    <HiSparkles className="h-6 w-6 text-purple-500" />
+                <IconFrame backgroundColor="bg-purple-100" baseColor="text-purple-500">
+                    <HiSparkles className="h-6 w-6" />
                 </IconFrame>
                 <div>
                     <h2 className="text-xl font-semibold text-foreground-primary">
@@ -303,7 +311,7 @@ ${prompt.additionalContext ? `## Additional Notes\n${prompt.additionalContext}` 
                             <Button.Primary
                                 onClick={handleGenerate}
                                 disabled={isGenerating}
-                                className="w-full"
+                                className="w-full flex gap-2 items-center justify-center"
                             >
                                 <HiSparkles className="w-4 h-4 mr-2" />
                                 {isGenerating ? 'Generating...' : 'Generate Content'}
@@ -335,12 +343,12 @@ ${prompt.additionalContext ? `## Additional Notes\n${prompt.additionalContext}` 
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-semibold text-foreground-primary">Generated Content</h3>
                             {generatedContent && (
-                                <Button.Light
+                                <Button.SM
                                     onClick={() => setGeneratedContent('')}
                                     size="sm"
                                 >
                                     <HiX className="w-4 h-4" />
-                                </Button.Light>
+                                </Button.SM>
                             )}
                         </div>
                         
@@ -356,6 +364,7 @@ ${prompt.additionalContext ? `## Additional Notes\n${prompt.additionalContext}` 
                                     <Button.Light
                                         onClick={handleGenerate}
                                         disabled={isGenerating}
+                                        className="flex items-center gap-2"
                                     >
                                         <HiRefresh className="w-4 h-4 mr-2" />
                                         Regenerate
@@ -363,6 +372,7 @@ ${prompt.additionalContext ? `## Additional Notes\n${prompt.additionalContext}` 
                                     <Button.Primary
                                         onClick={handleSave}
                                         disabled={isSaving}
+                                        className="flex items-center gap-2"
                                     >
                                         <HiSave className="w-4 h-4 mr-2" />
                                         {isSaving ? 'Saving...' : 'Save as Draft'}
@@ -380,17 +390,6 @@ ${prompt.additionalContext ? `## Additional Notes\n${prompt.additionalContext}` 
                         )}
                     </Card>
                 </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-end space-x-3 pt-6 pb-4 border-t border-border">
-                <Button.Light
-                    onClick={handleCancel}
-                    disabled={isGenerating || isSaving}
-                >
-                    <HiX className="w-4 h-4 mr-2" />
-                    Cancel
-                </Button.Light>
             </div>
         </div>
     );

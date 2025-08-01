@@ -41,6 +41,7 @@ export default function CreateClass({ onCreate }: CreateClassOptions) {
             onCreate();
             emitClassCreate(data);
             dispatch(addAlert({ level: AlertLevel.SUCCESS, remark: 'Class created successfully' }));
+            setClassData({ name: '', subject: '', section: '', color: '#3B82F6' });
             dispatch(closeModal());
         },
         onError: (error: TRPCClientErrorLike<any>) => {
@@ -57,8 +58,6 @@ export default function CreateClass({ onCreate }: CreateClassOptions) {
                 remark: validated.remark,
             }))
         }
-
-        setClassData({ name: '', subject: '', section: '', color: '#3B82F6' });
 
         createClass({
             ...classData,

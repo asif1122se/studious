@@ -120,14 +120,14 @@ export default function LabsPage({ params }: { params: { classId: string } }) {
 
             {/* Quick Actions */}
             <div className="grid grid-cols-1 gap-4">
-                <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleAIGenerate('LAB')}>
+                <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleAIGenerate('Assignment')}>
                     <div className="flex items-center space-x-3">
                         <IconFrame className="p-2 size-8 bg-purple-50 text-purple-600 rounded-lg">
                             <MdAutoAwesome className="h-6 w-6" />
                         </IconFrame>
                         <div>
-                            <h3 className="font-semibold text-foreground-primary">AI Lab</h3>
-                            <p className="text-sm text-foreground-muted">Generate lab assignment with AI</p>
+                            <h3 className="font-semibold text-foreground-primary">AI Generation</h3>
+                            <p className="text-sm text-foreground-muted">Generate assignment with AI</p>
                         </div>
                     </div>
                 </Card>
