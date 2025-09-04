@@ -11,6 +11,7 @@ import Button from "@/components/ui/Button";
 import { getFileIconInfo } from "@/lib/fileTypes";
 import FolderNavigator from "./FolderNavigator";
 import RenameModal from "./RenameModal";
+import { fmtDate } from "@/lib/time";
 
 
 interface FileDisplayProps {
@@ -405,7 +406,7 @@ export default function FileDisplay({
 
     const formatDate = (date: string | null): string => {
         if (!date) return "Unknown date";
-        return new Date(date).toLocaleDateString();
+        return fmtDate(date);
     };
 
     return (

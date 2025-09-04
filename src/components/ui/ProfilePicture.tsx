@@ -4,10 +4,11 @@ import { useMemo } from 'react';
 
 interface ProfilePictureProps {
     username: string;
-    size?: 'sm' | 'md' | 'lg';
+    size?: 'sm' | 'md' | 'lg' | 'xl';
     className?: string;
     showName?: boolean;
     namePosition?: 'right' | 'bottom';
+    profilePicUrl?: string;
 }
 
 export default function ProfilePicture({ 
@@ -15,17 +16,30 @@ export default function ProfilePicture({
     size = 'md',
     className = '',
     showName = false,
-    namePosition = 'right'
+    namePosition = 'right',
+    profilePicUrl
 }: ProfilePictureProps) {
     const sizeClasses = useMemo(() => {
         switch (size) {
             case 'sm': return 'size-6 text-sm';
             case 'lg': return 'size-12 text-lg';
+            case 'xl': return 'size-16 text-xl';
             default: return 'size-8 text-base';
         }
     }, [size]);
 
-    const avatar = (
+    const avatar = profilePicUrl ? (
+        <img 
+            src={profilePicUrl}
+            alt={`${username}'s profile picture`}
+            className={`
+                ${sizeClasses} 
+                rounded-full object-cover
+                ${className}
+            `}
+            title={username}
+        />
+    ) : (
         <div 
             className={`
                 ${sizeClasses} 

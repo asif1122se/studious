@@ -3,6 +3,7 @@
 import { FC } from "react";
 import { HiArrowLeft, HiArrowRight } from "react-icons/hi";
 import Button from "./Button";
+import { fmtDate } from "@/lib/time";
 
 interface WeekNavigatorProps {
     weekDays: Date[];
@@ -68,14 +69,7 @@ const WeekNavigator: FC<WeekNavigatorProps> = ({ weekDays, onWeekChange, selecte
                 
                 <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium text-foreground">
-                        {weekDays[0].toLocaleDateString('en-US', { 
-                            month: 'short', 
-                            day: 'numeric' 
-                        })} - {weekDays[6].toLocaleDateString('en-US', { 
-                            month: 'short', 
-                            day: 'numeric',
-                            year: 'numeric'
-                        })}
+                        {fmtDate(weekDays[0])} - {fmtDate(weekDays[6])}
                     </span>
                 </div>
                 

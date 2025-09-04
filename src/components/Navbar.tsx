@@ -218,6 +218,7 @@ export default function Navbar() {
                         className="bg-red-500 hover:bg-red-600 text-white"
                         aria-label="Sign out of your account"
                         aria-describedby="logout-description"
+                        onClick={handleSignOut}
                     >
                         <HiLogout className="h-5 w-5" aria-hidden="true" />
                     </Button.Light>

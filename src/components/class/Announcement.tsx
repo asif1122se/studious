@@ -12,6 +12,7 @@ import Card from "../ui/Card";
 import ProfilePicture from '../ui/ProfilePicture';
 import { AlertLevel } from "@/lib/alertLevel";
 import Badge from "../Badge";
+import { fmtDate } from "@/lib/time";
 
 export default function Announcement({
     classId,
@@ -83,7 +84,7 @@ export default function Announcement({
                                 {user.username}
                             </span>
                             <Badge variant="foreground">
-                                {new Date().toLocaleDateString()}
+                                {fmtDate(new Date())}
                             </Badge>
                         </div>
                         {canEdit && (

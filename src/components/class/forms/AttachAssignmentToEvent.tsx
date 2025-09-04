@@ -9,6 +9,7 @@ import { assignmentTypes, formatAssignmentType, getAssignmentIcon } from "@/lib/
 import IconFrame from "@/components/ui/IconFrame";
 import Input from "@/components/ui/Input";
 import Skeleton from "@/components/ui/Skeleton";
+import { fmtDate } from "@/lib/time";
 
 interface AttachAssignmentToEventProps {
   eventId: string;
@@ -208,7 +209,7 @@ export default function AttachAssignmentToEvent({ eventId, onAssignmentAttached 
                       </div>
                       <div className="flex items-center space-x-1">
                         <HiDocumentText className="w-3 h-3" />
-                        <span>Due: {new Date(assignment.dueDate).toLocaleDateString()}</span>
+                        <span>Due: {fmtDate(assignment.dueDate)}</span>
                       </div>
                     </div>
                   </div>

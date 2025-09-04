@@ -73,6 +73,8 @@ export const ROUTES = {
   CLASSES: '/classes',
   AGENDA: '/agenda',
   PRICING: '/pricing',
+  PROFILE: '/profile',
+  SETTINGS: '/settings',
   
   // Class routes
   CLASS: (classId: string) => `/classes/${classId}`,

@@ -10,6 +10,7 @@ import { AlertLevel } from "@/lib/alertLevel";
 import Card from "../ui/Card";
 import { assignmentTypes, formatAssignmentType, getAssignmentIcon } from "@/lib/assignment";
 import { useNavigation, ROUTES } from "@/lib/navigation";
+import { fmtDate } from "@/lib/time";
 
 interface AssignmentProps {
     title: string;
@@ -142,7 +143,7 @@ export default function Assignment({
                         <div className="flex items-center space-x-4 text-xs text-foreground-muted">
                             <div className="flex items-center space-x-1">
                                 <HiDocumentText className="w-3 h-3" />
-                                <span>Due: {date ? new Date(date).toLocaleDateString() : 'N/A'}</span>
+                                <span>Due: {date ? fmtDate(date) : 'N/A'}</span>
                             </div>
                         </div>
                     </div>

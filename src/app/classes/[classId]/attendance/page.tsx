@@ -19,7 +19,7 @@ import type { AppRouter } from "@studious-lms/server";
 import type { RouterOutputs } from "@/utils/trpc";
 import Card from "@/components/ui/Card";
 import { DataTable } from "@/components/ui/DataTable";
-import { fmtTime } from "@/lib/time";
+import { fmtTime, fmtDate } from "@/lib/time";
 import Skeleton, { SkeletonText, SkeletonTable } from "@/components/ui/Skeleton";
 
 interface AttendanceStatus {
@@ -138,7 +138,7 @@ export default function AttendancePage({ params }: { params: { classId: string }
                 <div className="flex items-center text-sm text-foreground-muted">
                     <HiClock className="h-4 w-4 mr-2 flex-shrink-0" />
                     <span>
-                        {new Date(row.startTime).toLocaleDateString()} {fmtTime(new Date(row.startTime))} - {fmtTime(new Date(row.endTime))}
+                        {fmtDate(row.startTime)} {fmtTime(row.startTime)} - {fmtTime(row.endTime)}
                     </span>
                 </div>
             ),

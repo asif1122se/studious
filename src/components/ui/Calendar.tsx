@@ -2,6 +2,7 @@
 
 import { useState, useEffect, FC } from "react";
 import { HiArrowLeft, HiArrowRight } from "react-icons/hi";
+import { fmtDate } from "@/lib/time";
 
 enum Month {
     JAN = 0,
@@ -229,14 +230,7 @@ const Calendar: FC<CalendarProps> = ({ onChange }) => {
                 <div className="text-xs text-foreground-muted text-center">
                     {currentWeekDates.length > 0 ? (
                         <>
-                            Week of {currentWeekDates[0].toLocaleDateString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric' 
-                            })} - {currentWeekDates[6].toLocaleDateString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric',
-                                year: 'numeric'
-                            })}
+                            Week of {fmtDate(currentWeekDates[0])} - {fmtDate(currentWeekDates[6])}
                         </>
                     ) : (
                         'Loading...'

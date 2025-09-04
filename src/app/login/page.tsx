@@ -1,9 +1,8 @@
 "use client";
 import { AlertLevel } from "@/lib/alertLevel";
-import { addAlert } from "@/store/appSlice";
+import { addAlert, setAuth } from "@/store/appSlice";
 import { RootState } from "@/store/store";
 import { trpc } from "@/utils/trpc";
-import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RouterInputs, RouterOutputs } from "@/utils/trpc";
@@ -12,10 +11,11 @@ import Input from "@/components/ui/Input";
 import Card from "@/components/ui/Card";
 import Link from "next/link";
 import Checkbox from "@/components/ui/Checkbox";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Login() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState<RouterInputs['auth']['login']>({
     username: '',
     password: '',
@@ -36,8 +36,15 @@ export default function Login() {
       if ('token' in data) {
         dispatch(addAlert({ remark: 'Successfully logged in', level: AlertLevel.SUCCESS }));
         // set the session cookie
-        document.cookie = `token=${data.token}`;
-        router.push('/classes/');
+        document.cookie = `token=${data.token}; Path=/; SameSite=Lax`;
+        // optimistically set client auth to avoid redirect race conditions
+        dispatch(setAuth({
+          loggedIn: true,
+          teacher: false,
+          student: false,
+        }));
+        const nextPath = searchParams.get('next') || '/classes';
+        router.replace(nextPath);
       } else {
         // user not verified
         setUserNotVerified(true);
@@ -63,9 +70,10 @@ export default function Login() {
 
   useEffect(() => {
     if (appState.user.loggedIn) {
-      redirect('/classes/');
+      const nextPath = searchParams.get('next') || '/classes';
+      router.replace(nextPath);
     }
-  }, [appState.user.loggedIn]);
+  }, [appState.user.loggedIn, router, searchParams]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -3,7 +3,7 @@ import { AlertLevel } from "@/lib/alertLevel";
 import { addAlert } from "@/store/appSlice";
 import { RootState } from "@/store/store";
 import { trpc } from "@/utils/trpc";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RouterInputs, RouterOutputs } from "@/utils/trpc";
@@ -13,7 +13,6 @@ import Card from "@/components/ui/Card";
 import { HiAcademicCap, HiMail, HiArrowLeft, HiCheckCircle } from "react-icons/hi";
 import Link from "next/link";
 import { getErrorMessage, getFieldErrors } from "@/utils/errorHandler";
-import { useRouter } from "next/navigation";
 
 export default function Signup() {
   const router = useRouter();
@@ -55,9 +54,9 @@ export default function Signup() {
 
   useEffect(() => {
     if (appState.user.loggedIn) {
-      redirect('/classes/');
+      router.replace('/classes');
     }
-  }, [appState.user.loggedIn]);
+  }, [appState.user.loggedIn, router]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

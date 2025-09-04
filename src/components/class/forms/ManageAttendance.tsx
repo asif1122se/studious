@@ -13,6 +13,7 @@ import type { AppRouter } from "@studious-lms/server";
 import SearchableMultiSelect from "@/components/ui/SearchableMultiSelect";
 import Checkbox from "@/components/ui/Checkbox";
 import ProfilePicture from "@/components/ui/ProfilePicture";
+import { fmtDate } from "@/lib/time";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 type AttendanceRecord = RouterOutput["attendance"]["get"][number];
@@ -182,7 +183,7 @@ export default function ManageAttendance({ classId, eventId }: ManageAttendanceP
                         <div className="text-foreground-muted">Event Name:</div>
                         <div className="font-medium text-foreground">{attendance.event.name || 'Untitled Event'}</div>
                         <div className="text-foreground-muted">Date:</div>
-                        <div className="font-medium text-foreground">{new Date(attendance.date).toLocaleDateString()}</div>
+                        <div className="font-medium text-foreground">{fmtDate(attendance.date)}</div>
                         {attendance.event.location && (
                             <>
                                 <div className="text-foreground-muted">Location:</div>

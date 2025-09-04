@@ -14,6 +14,7 @@ import AttachAssignmentToEvent from './forms/AttachAssignmentToEvent';
 import AttachedAssignments from './AttachedAssignments';
 import IconFrame from '../ui/IconFrame';
 import { format, parseISO } from 'date-fns';
+import { fmtTime, fmtDate } from '@/lib/time';
 
 interface EventProps {
     id: string;
@@ -159,7 +160,7 @@ export default function Event({
                                             <h3 className="font-semibold text-foreground">Time</h3>
                                         </div>
                                         <p className="text-foreground-secondary">
-                                            {format(startDate, 'h:mm a')} - {format(endDate, 'h:mm a')}
+                                            {fmtTime(startTime)} - {fmtTime(endTime)}
                                         </p>
                                         <p className="text-sm text-foreground-muted mt-1">
                                             {getTimeDifferenceInHours(startTime, endTime).toFixed(1)} hours

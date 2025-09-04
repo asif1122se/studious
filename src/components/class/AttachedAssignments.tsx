@@ -11,6 +11,7 @@ import { RouterOutputs } from "@/utils/trpc";
 import { useState } from "react";
 import Empty from "../ui/Empty";
 import { useNavigation, ROUTES } from "@/lib/navigation";
+import { fmtDate } from "@/lib/time";
 
 type AttachedAssignment = RouterOutputs["event"]["get"]["event"]["assignmentsAttached"][number];
 
@@ -128,7 +129,7 @@ export default function AttachedAssignments({
                     </div>
                     <div className="flex items-center space-x-1">
                       <HiDocumentText className="w-3 h-3" />
-                      <span>Due: {new Date(assignment.dueDate).toLocaleDateString()}</span>
+                      <span>Due: {fmtDate(assignment.dueDate)}</span>
                     </div>
                     {assignment.attachments.length > 0 && (
                       <div className="flex items-center space-x-1">

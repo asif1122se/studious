@@ -19,8 +19,9 @@ export default function UserProfile({ username, className = '' }: UserProfilePro
     const dispatch = useDispatch();
     const [isSigningOut, setIsSigningOut] = useState(false);
 
-    const logoutMutation = trpc.auth.logout.useMutation({
-        onSuccess: () => {
+    // TODO: Implement this mutation when backend routes are available
+    const logoutMutation = {
+        mutateAsync: async () => {
             dispatch(setAuth({
                 loggedIn: false,
                 teacher: false,
@@ -28,12 +29,8 @@ export default function UserProfile({ username, className = '' }: UserProfilePro
                 institutionIds: [],
             }));
             navigation.push(ROUTES.LOGIN);
-        },
-        onError: (error) => {
-            console.error('Logout error:', error);
-            setIsSigningOut(false);
         }
-    });
+    };
 
     const handleSignOut = async () => {
         setIsSigningOut(true);
@@ -49,15 +46,13 @@ export default function UserProfile({ username, className = '' }: UserProfilePro
         {
             label: 'Profile',
             onClick: () => {
-                // TODO: Navigate to profile page
-                console.log('Navigate to profile');
+                navigation.push(ROUTES.PROFILE);
             }
         },
         {
             label: 'Settings',
             onClick: () => {
-                // TODO: Navigate to settings page
-                console.log('Navigate to settings');
+                navigation.push(ROUTES.SETTINGS);
             }
         },
         {
